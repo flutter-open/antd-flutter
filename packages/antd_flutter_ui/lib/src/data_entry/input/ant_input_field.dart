@@ -70,6 +70,28 @@ Color antFieldBorderColorOf(
   }
 }
 
+/// 焦点光环色 — 跟随校验状态（antd 语义：error → colorErrorOutline，
+/// warning → colorWarningOutline，正常 → controlOutline）。
+Color antFieldFocusOutlineOf(AntThemeData t, AntInputStatus status) {
+  switch (status) {
+    case AntInputStatus.error:
+      return t.colorErrorOutline;
+    case AntInputStatus.warning:
+      return t.colorWarningOutline;
+    case AntInputStatus.normal:
+      return t.controlOutline;
+  }
+}
+
+/// 焦点光环 — antd web 为「无模糊的实心外扩环」（`box-shadow: 0 0 0 2px
+/// outline`），不是模糊辉光；外扩不参与布局，因此不引起内容位移。
+List<BoxShadow> antFieldFocusRingOf(AntThemeData t, AntInputStatus status) => [
+      BoxShadow(
+        color: antFieldFocusOutlineOf(t, status),
+        spreadRadius: t.controlOutlineWidth,
+      ),
+    ];
+
 class AntInputField extends StatefulWidget {
   const AntInputField({
     super.key,
@@ -395,12 +417,7 @@ class _AntInputFieldState extends State<AntInputField> {
       borderRadius: radius,
       border: Border.all(color: baseColor, width: t.s(1)),
       boxShadow: _focused && enabled
-          ? [
-              BoxShadow(
-                color: t.controlOutline.withValues(alpha: 0.8),
-                blurRadius: t.controlOutlineWidth,
-              ),
-            ]
+          ? antFieldFocusRingOf(t, widget.status)
           : null,
     );
   }
