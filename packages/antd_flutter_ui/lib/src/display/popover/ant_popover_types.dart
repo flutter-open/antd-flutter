@@ -81,6 +81,9 @@ class AntPopoverOverlayStyle {
     this.border,
     this.boxShadow,
     this.padding,
+    this.width,
+    this.minWidth,
+    this.maxWidth,
   });
 
   /// 浮层背景色（优先于 [AntPopover.color] 生效）。
@@ -97,4 +100,16 @@ class AntPopoverOverlayStyle {
 
   /// 浮层内边距。
   final EdgeInsetsGeometry? padding;
+
+  /// 浮层固定宽度（逻辑像素，按主题缩放）。
+  ///
+  /// 为空时宽度随内容自适应（受 [minWidth] / [maxWidth] 约束）。
+  final double? width;
+
+  /// 浮层最小宽度（逻辑像素，按主题缩放）。仅在 [width] 为空时生效。
+  final double? minWidth;
+
+  /// 浮层最大宽度（逻辑像素，按主题缩放）。仅在 [width] 为空时生效；
+  /// 默认取「视口宽度 − 16」，保证长内容自动换行而不溢出屏幕。
+  final double? maxWidth;
 }

@@ -9,7 +9,7 @@
 /// - [open] / [defaultOpen] / [onOpenChange] — 受控/非受控显示
 /// - [color] — 自定义背景色
 /// - [arrow] — 是否显示箭头
-/// - [overlayStyle] — 浮层自定义样式
+/// - [overlayStyle] — 浮层自定义样式（含 width / minWidth / maxWidth 尺寸控制）
 ///
 /// ```dart
 /// AntPopover(
@@ -157,6 +157,10 @@ class AntPopover extends StatefulWidget {
   final bool arrow;
 
   /// 浮层自定义样式。
+  ///
+  /// 宽度默认随内容自适应；定宽/限宽经 [AntPopoverOverlayStyle.width]
+  /// （固定宽度）或 [AntPopoverOverlayStyle.minWidth] /
+  /// [AntPopoverOverlayStyle.maxWidth]（自适应区间）声明。
   final AntPopoverOverlayStyle? overlayStyle;
 
   /// 是否禁用。
@@ -478,16 +482,35 @@ class _PopoverOverlay extends StatelessWidget {
           ],
     );
 
+    // 宽度策略（对齐 antd web）：默认随内容自适应，不锁死固定宽度；
+    // 需要定宽/限宽时经 overlayStyle.width / minWidth / maxWidth 声明。
+    final styleWidth = overlayStyle?.width;
+    final styleMinWidth = overlayStyle?.minWidth;
+    final styleMaxWidth = overlayStyle?.maxWidth;
+    final widthConstraints = styleWidth != null
+        ? BoxConstraints.tightFor(width: theme.s(styleWidth))
+        : BoxConstraints(
+            minWidth: theme.s(styleMinWidth ?? 0),
+            // 默认上限：视口宽度 − 2×margin，长文本自动换行而不溢出屏幕
+            maxWidth: theme.s(
+              styleMaxWidth ??
+                  (MediaQuery.sizeOf(context).width -
+                      PopupEngine.defaultMargin * 2),
+            ),
+          );
+
     return KeyedSubtree(
       key: kAntPopoverBubbleKey,
-      child: Container(
-        width: theme.s(240),
-        padding: padding,
-        decoration: bubbleDecoration,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: children,
+      child: ConstrainedBox(
+        constraints: widthConstraints,
+        child: Container(
+          padding: padding,
+          decoration: bubbleDecoration,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: children,
+          ),
         ),
       ),
     );
