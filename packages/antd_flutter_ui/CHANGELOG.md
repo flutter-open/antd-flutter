@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.4
+
+- Input: fix vertical centering when `addonBefore` / `addonAfter` (or `prefix` / `suffix`) is present. The embedded single-line field now centers its line box inside the control height, so addon text and input text share one baseline; the addon border is drawn in the foreground layer so it no longer shrinks the content box.
+- Input: the focus outline is now a solid, unblurred ring (`box-shadow: 0 0 0 2px` semantics) that follows validation status — `colorErrorOutline` for error, `colorWarningOutline` for warning and `controlOutline` otherwise.
+- Popover: the bubble width now follows its content instead of a fixed 240; `AntPopoverOverlayStyle` gains `width`, `minWidth` and `maxWidth` (defaults to the viewport width minus the default margin) for explicit sizing.
+
 ## 1.0.3
 
 - Republished against antd_theme 1.0.2 so the Web platform build no longer resolves a dart:io dependency chain.

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.2
+
+- DatePicker trigger: the open state now uses a `colorPrimary` 1px border plus a solid `controlOutline` ring instead of a pale 2px outline, so the focus treatment matches antd and follows the primary color.
+- DatePicker trigger: the border is drawn in the foreground layer, so opening the panel no longer changes the content box — text no longer shifts on open/close.
+- DatePicker trigger: height now follows `controlHeight` / `controlHeightSM` / `controlHeightLG` tokens instead of hard-coded `40` / `32` / `24`.
+- Depend on `antd_flutter_ui ^1.0.4`.
+
 ## 1.0.1
 
 - Fix pub.dev static analysis results by aligning internal dependency constraints.

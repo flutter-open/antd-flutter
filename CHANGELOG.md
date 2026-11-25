@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2
+
+- Bump `antd_flutter_ui` to `^1.0.4`: vertical centering of `addonBefore` / `addonAfter` input rows, a solid status-aware focus ring, and Popover bubbles that size to their content (`width` / `minWidth` / `maxWidth`).
+- Bump `antd_picker` to `^1.0.2`: DatePicker trigger uses a primary-colored 1px border plus a solid focus ring, and no longer shifts its content when the panel opens.
+
 ## 1.0.1
 
 - Fix pub.dev static analysis results by aligning internal dependency constraints.
