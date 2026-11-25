@@ -161,21 +161,23 @@ class _AntDatePickerState extends State<AntDatePicker> {
     return '$y-$m-$day';
   }
 
-  double get _controlHeight {
+  /// 触发器高度 — 取尺寸级对应的高度 token（不再硬编码 40/32/24，
+  /// 主题自定义 controlHeight* 时同步生效）。
+  double _controlHeight(AntThemeData theme) {
     switch (widget.size) {
       case AntDatePickerSize.large:
-        return 40;
+        return theme.controlHeightLG;
       case AntDatePickerSize.middle:
-        return 32;
+        return theme.controlHeight;
       case AntDatePickerSize.small:
-        return 24;
+        return theme.controlHeightSM;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
-    final height = theme.s(_controlHeight);
+    final height = theme.s(_controlHeight(theme));
     final open = _currentOpen;
     final value = _currentValue;
 
@@ -185,21 +187,37 @@ class _AntDatePickerState extends State<AntDatePicker> {
       onTap: widget.disabled ? null : () => _setOpen(!open),
       child: CompositedTransformTarget(
         link: _layerLink,
-        child: Container(
+        // 装饰：底色/圆角 + 前景边框（不参与布局，打开态不产生内容位移）
+        // + 焦点光环（antd 语义：无模糊的实心外扩环，非模糊辉光）
+        child: AnimatedContainer(
           key: _fieldKey,
           height: height,
+          duration: const Duration(milliseconds: 150),
           padding: EdgeInsets.symmetric(horizontal: theme.marginSM),
           decoration: BoxDecoration(
             color: widget.disabled
                 ? theme.colorBgContainerDisabled
                 : theme.colorBgContainer,
             borderRadius: BorderRadius.circular(theme.borderRadius),
+            boxShadow: open && !widget.disabled
+                ? [
+                    BoxShadow(
+                      color: theme.controlOutline,
+                      spreadRadius: theme.controlOutlineWidth,
+                    ),
+                  ]
+                : null,
+          ),
+          foregroundDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(theme.borderRadius),
             border: Border.all(
+              // 打开态主色边框（与 Input 聚焦语义一致），宽度恒定 1
+              // ——此前用 controlOutline 当边框色 + 宽度 1→2 切换，
+              // 既颜色发灰又引起加粗抖动
               color: open && !widget.disabled
-                  ? theme.controlOutline
+                  ? theme.colorPrimary
                   : theme.colorBorder,
-              width:
-                  open && !widget.disabled ? theme.controlOutlineWidth : theme.s(1),
+              width: theme.s(1),
             ),
           ),
           child: Row(
