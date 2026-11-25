@@ -290,9 +290,13 @@ class _AntInputFieldState extends State<AntInputField> {
                 ? EdgeInsets.symmetric(
                     vertical: (t.s(height) - fontSize) / 2,
                   )
-                // embedded：零内边距默认；外层可传 embeddedPadding 让行盒撑满
-                // 高度以获得严格的垂直居中（AutoComplete 等自绘边框场景）
-                : EdgeInsets.symmetric(vertical: widget.embeddedPadding ?? 0),
+                // embedded：与 standalone 同一套对称内边距，行盒在整块内垂直
+                // 居中；外层可用 embeddedPadding 覆盖（AutoComplete 等自绘边框
+                // 场景高度小于标准控件高时传更小的值）
+                : EdgeInsets.symmetric(
+                    vertical: widget.embeddedPadding ??
+                        (t.s(height) - fontSize) / 2,
+                  ),
         border: InputBorder.none,
         enabledBorder: InputBorder.none,
         focusedBorder: InputBorder.none,

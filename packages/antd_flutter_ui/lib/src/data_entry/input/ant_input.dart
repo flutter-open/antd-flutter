@@ -306,17 +306,20 @@ class _AntInputState extends State<AntInput> {
         color:
             widget.disabled ? t.colorBgContainerDisabled : t.colorBgContainer,
         borderRadius: BorderRadius.circular(t.borderRadius),
-        border:
-            widget.bordered ? Border.all(color: borderColor, width: t.s(1)) : null,
         boxShadow: widget.bordered && _focused && !widget.disabled
-            ? [
-                BoxShadow(
-                  color: t.controlOutline.withValues(alpha: 0.8),
-                  blurRadius: t.controlOutlineWidth,
-                ),
-              ]
+            ? antFieldFocusRingOf(t, widget.status)
             : null,
       ),
+      // 边框改由 foregroundDecoration 绘制：BoxDecoration 的 border 若挂在
+      // decoration 上会被 Container 计入 padding（内容高度少 2px），与
+      // IntrinsicHeight 强制的整行高度冲突，导致 addon 行被裁切、文字重心偏移。
+      // 前景层绘制不参与布局，内容铺满整框（antd 聚焦时边框加粗也不抖）。
+      foregroundDecoration: widget.bordered
+          ? BoxDecoration(
+              borderRadius: BorderRadius.circular(t.borderRadius),
+              border: Border.all(color: borderColor, width: t.s(1)),
+            )
+          : null,
       clipBehavior: Clip.antiAlias,
       child: addonRow,
     );
@@ -429,8 +432,12 @@ class _AntInputState extends State<AntInput> {
       ),
       alignment: Alignment.center,
       child: DefaultTextStyle(
+        // height: 1.0 与输入区文字行盒一致（antd web 中 addon 与输入框共享
+        // 同一行高）；否则 addon 按自然行高（含额外上下留白）居中，与输入
+        // 文字的字形重心错开，表现为「文本未居中」
         style: TextStyle(
           fontSize: t.s(fontSize),
+          height: 1.0,
           color: t.colorTextSecondary,
         ),
         child: child,
