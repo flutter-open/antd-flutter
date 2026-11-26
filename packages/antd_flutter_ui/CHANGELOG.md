@@ -4,6 +4,10 @@
 
 - Popup engine: a popup that prefers a vertical direction no longer measures the *horizontal* space to decide whether its opposite side fits, so a long panel that does not fit below the trigger is no longer flipped above it and clipped by the top edge.
 - Popup engine: the popup's main axis is now clamped into the viewport (previously only the cross axis was). A panel that fits neither below nor above the trigger stays fully visible, overlapping the trigger, instead of running off the screen edge.
+- Select / AutoComplete / Mentions / Cascader / TreeSelect triggers: the open (focused) state now draws a 1px `colorPrimary` border plus a solid `controlOutline` ring in the foreground layer. Previously the border itself was replaced by a 2px translucent `controlOutline`, which read as a pale, wrong-colored thick border and shifted the content by 1px on open (issue #7).
+- Mentions: focus changes now repaint the field, so the focused border and ring are actually visible (the focus listener only handled blur before).
+- Export `antFieldBorderColorOf`, `antFieldFocusOutlineOf` and `antFieldFocusRingOf` from the new `ant_field_surface.dart`, so components outside the input family can share the same border/ring treatment.
+
 
 ## 1.0.4
 

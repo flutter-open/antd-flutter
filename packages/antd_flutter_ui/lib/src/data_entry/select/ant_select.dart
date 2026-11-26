@@ -20,6 +20,7 @@ import 'package:antd_flutter_ui/src/engines/popup_engine.dart';
 import '../../feedback/loading/ant_loading.dart';
 import 'package:antd_flutter_ui/src/engines/popup_overlay.dart';
 import 'package:antd_flutter_ui/src/data_entry/select/ant_select_types.dart';
+import 'package:antd_flutter_ui/src/data_entry/input/ant_field_surface.dart';
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_ui/src/data_entry/select/ant_select_types.dart';
@@ -363,11 +364,22 @@ class _AntSelectState<T> extends State<AntSelect<T>>
             ? theme.colorBgContainerDisabled
             : theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadius),
+        // 打开态光环：antd 是 2px 无模糊的实心外扩环，不是把边框换成半透明色。
+        boxShadow: open && !widget.disabled
+            ? antFieldFocusRingOf(theme, AntInputStatus.normal)
+            : null,
+      ),
+      // 边框画在前景层：不参与布局，打开态不再让内容位移 1px；
+      // 打开态取主色 1px（对齐 antd `.ant-select-focused`）。
+      foregroundDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(theme.borderRadius),
         border: Border.all(
-          color: open && !widget.disabled
-              ? theme.controlOutline
-              : theme.colorBorder,
-          width: open && !widget.disabled ? theme.controlOutlineWidth : theme.s(1),
+          color: antFieldBorderColorOf(
+            theme,
+            AntInputStatus.normal,
+            focused: open && !widget.disabled,
+          ),
+          width: theme.s(1),
         ),
       ),
       child: Row(

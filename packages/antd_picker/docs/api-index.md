@@ -2,7 +2,7 @@
 
 # antd_picker API 文档总览
 
-> 自动生成时间：2026-11-26T17:45:04.529377；共 22 个公开 API，详情见 `api/<名称>.md` 独立页面。
+> 自动生成时间：2026-11-26T19:57:50.126309；共 25 个公开 API，详情见 `api/<名称>.md` 独立页面。
 
 ## 类（11）
 
@@ -28,6 +28,14 @@
 | [`AntCascaderSize`](api/AntCascaderSize.md) | 级联尺寸 |
 | [`AntDatePickerSize`](api/AntDatePickerSize.md) | 日期选择器尺寸 |
 | [`AntTimePickerSize`](api/AntTimePickerSize.md) | 时间选择器尺寸 |
+
+## 函数（3）
+
+| 名称 | 说明 |
+| --- | --- |
+| [`antFieldBorderColorOf`](api/antFieldBorderColorOf.md) | 根据状态获取边框色 |
+| [`antFieldFocusOutlineOf`](api/antFieldFocusOutlineOf.md) | 焦点光环色 — 跟随校验状态（antd 语义：error → colorErrorOutline， warning… |
+| [`antFieldFocusRingOf`](api/antFieldFocusRingOf.md) | 焦点光环 — antd web 为「无模糊的实心外扩环」（box-shadow: 0 0 0 2px outlin… |
 
 ## 类型定义（7）
 

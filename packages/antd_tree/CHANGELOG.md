@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2
+
+- `AntTreeSelect` trigger: the open state now uses a 1px `colorPrimary` border plus a solid `controlOutline` ring drawn in the foreground layer, instead of a 2px translucent outline that shifted the content by 1px (issue #7 family).
+- Depend on `antd_flutter_ui ^1.0.5` for the shared border/ring helpers.
+
 ## 1.0.1
 
 - Fix pub.dev static analysis results by aligning internal dependency constraints.

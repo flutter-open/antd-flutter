@@ -23,6 +23,7 @@ library;
 import 'package:antd_flutter_ui/src/engines/popup_engine.dart';
 import 'package:antd_flutter_ui/src/engines/popup_overlay.dart';
 import 'package:antd_flutter_ui/src/data_entry/auto_complete/ant_auto_complete_types.dart';
+import 'package:antd_flutter_ui/src/data_entry/input/ant_field_surface.dart';
 import 'package:antd_flutter_ui/src/data_entry/input/ant_input_field.dart';
 import 'package:antd_flutter_ui/src/data_entry/input/ant_input_types.dart';
 import 'package:antd_theme/antd_theme.dart';
@@ -345,11 +346,23 @@ class _AntAutoCompleteState<T> extends State<AntAutoComplete<T>>
         decoration: BoxDecoration(
           color:
               widget.disabled ? t.colorBgContainerDisabled : t.colorBgContainer,
-          border: Border.all(
-            color: _focusNode.hasFocus ? t.colorPrimary : t.colorBorder,
-            width: _focusNode.hasFocus ? t.controlOutlineWidth : 1,
-          ),
           borderRadius: BorderRadius.circular(t.borderRadius),
+          // 聚焦光环：2px 无模糊实心外扩环（对齐 Input / antd web）。
+          boxShadow: _focusNode.hasFocus
+              ? antFieldFocusRingOf(t, AntInputStatus.normal)
+              : null,
+        ),
+        // 边框恒 1px 画在前景层，聚焦不再让内容位移。
+        foregroundDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(t.borderRadius),
+          border: Border.all(
+            color: antFieldBorderColorOf(
+              t,
+              AntInputStatus.normal,
+              focused: _focusNode.hasFocus,
+            ),
+            width: 1,
+          ),
         ),
         // embedded 装饰器无固有偏移：marginSM+4 → 字形内缩 17.3，与 Input 家族
         // （standalone marginSM + 4.33 固有偏移）字形对齐，基座单点标准

@@ -3,6 +3,7 @@
 ## 1.0.3
 
 - Re-export `AntDateRangePicker`, `AntDateTimeRangePicker`, `AntPickerLocale` and `AntPickerLocaleProvider` from `antd_picker`.
+- Bump `antd_flutter_ui` to `^1.0.5` and `antd_tree` to `^1.0.2`: Select, AutoComplete, Mentions, Cascader and TreeSelect triggers now show a 1px primary border plus a solid focus ring instead of a pale 2px outline (issue #7).
 - Bump `antd_flutter_ui` to `^1.0.5`: the popup engine now clamps a popup's main axis into the viewport, so a long panel that does not fit next to its trigger stays fully visible instead of being clipped.
 - Bump `antd_picker` to `^1.1.0`: date range and date-time range pickers, plus localization for the date/time picker family.
 

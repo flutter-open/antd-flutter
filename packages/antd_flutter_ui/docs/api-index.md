@@ -2,7 +2,7 @@
 
 # antd_flutter_ui API 文档总览
 
-> 自动生成时间：2026-11-21T23:54:43.965；共 438 个公开 API，详情见 `api/<名称>.md` 独立页面。
+> 自动生成时间：2026-11-26T19:56:29.789171；共 441 个公开 API，详情见 `api/<名称>.md` 独立页面。
 
 ## 类（166）
 
@@ -306,12 +306,15 @@
 | --- | --- |
 | [`AntResultStatusLabel`](api/AntResultStatusLabel.md) | 各状态展示数字大字时的文案 |
 
-## 函数（13）
+## 函数（16）
 
 | 名称 | 说明 |
 | --- | --- |
 | [`antAvatarSizeToPx`](api/antAvatarSizeToPx.md) | 将尺寸预设解析为像素值 |
 | [`antDeviceSafePadding`](api/antDeviceSafePadding.md) | 设备真实安全区 insets（取根视图 MediaQuery.padding） |
+| [`antFieldBorderColorOf`](api/antFieldBorderColorOf.md) | 根据状态获取边框色 |
+| [`antFieldFocusOutlineOf`](api/antFieldFocusOutlineOf.md) | 焦点光环色 — 跟随校验状态（antd 语义：error → colorErrorOutline， warning… |
+| [`antFieldFocusRingOf`](api/antFieldFocusRingOf.md) | 焦点光环 — antd web 为「无模糊的实心外扩环」（box-shadow: 0 0 0 2px outlin… |
 | [`antIsDesktopViewport`](api/antIsDesktopViewport.md) | 桌面端视口判定（最短边 ≥ 600 逻辑像素） |
 | [`buildCalendarCompactMonthGrid`](api/buildCalendarCompactMonthGrid.md) | 生成自适应行数的月份网格：按当月实际天数向上取整为整周（紧凑布局用） |
 | [`buildCalendarMonthGrid`](api/buildCalendarMonthGrid.md) | 生成月份网格：固定 maxWeeks 行（默认 6 行 × 7 列，上下月补位） |

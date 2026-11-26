@@ -194,6 +194,7 @@ export 'src/data_entry/stepper/ant_stepper.dart';
 export 'src/data_entry/stepper/ant_stepper_types.dart';
 export 'src/data_entry/input/ant_input.dart';
 export 'src/data_entry/input/ant_input_types.dart';
+export 'src/data_entry/input/ant_field_surface.dart';
 export 'src/data_entry/input_number/ant_input_number.dart';
 export 'src/data_entry/input_number/ant_input_number_types.dart';
 export 'src/data_entry/search_bar/ant_search_bar.dart';

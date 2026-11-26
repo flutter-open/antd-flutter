@@ -26,6 +26,7 @@ library;
 import 'package:antd_flutter_ui/src/engines/popup_engine.dart';
 import 'package:antd_flutter_ui/src/engines/popup_overlay.dart';
 import 'package:antd_flutter_ui/src/data_entry/mentions/ant_mentions_types.dart';
+import 'package:antd_flutter_ui/src/data_entry/input/ant_field_surface.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
@@ -177,6 +178,10 @@ class _AntMentionsState<T> extends State<AntMentions<T>>
   }
 
   void _onFocusChanged() {
+    if (!mounted) return;
+    // 聚焦/失焦都要重绘：边框与光环跟随 `_focusNode.hasFocus`，
+    // 只处理失焦会让聚焦态永远画不出来（无主色边框、无光环）。
+    setState(() {});
     if (!_focusNode.hasFocus) {
       _removeOverlay();
     }
@@ -372,11 +377,23 @@ class _AntMentionsState<T> extends State<AntMentions<T>>
         decoration: BoxDecoration(
           color:
               widget.disabled ? t.colorBgContainerDisabled : t.colorBgContainer,
-          border: Border.all(
-            color: _focusNode.hasFocus ? t.colorPrimary : t.colorBorder,
-            width: _focusNode.hasFocus ? t.controlOutlineWidth : 1,
-          ),
           borderRadius: BorderRadius.circular(t.borderRadius),
+          // 聚焦光环：2px 无模糊实心外扩环（对齐 Input / antd web）。
+          boxShadow: _focusNode.hasFocus
+              ? antFieldFocusRingOf(t, AntInputStatus.normal)
+              : null,
+        ),
+        // 边框恒 1px 画在前景层，聚焦不再让内容位移。
+        foregroundDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(t.borderRadius),
+          border: Border.all(
+            color: antFieldBorderColorOf(
+              t,
+              AntInputStatus.normal,
+              focused: _focusNode.hasFocus,
+            ),
+            width: 1,
+          ),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,

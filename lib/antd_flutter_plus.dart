@@ -108,6 +108,7 @@ export 'package:antd_splitter/src/splitter/ant_splitter_types.dart';
 // L4 组件层 — 数据录入
 export 'package:antd_flutter_ui/src/data_entry/input/ant_input.dart';
 export 'package:antd_flutter_ui/src/data_entry/input/ant_input_types.dart';
+export 'package:antd_flutter_ui/src/data_entry/input/ant_field_surface.dart';
 export 'package:antd_flutter_ui/src/data_entry/input_number/ant_input_number.dart';
 export 'package:antd_flutter_ui/src/data_entry/input_number/ant_input_number_types.dart';
 export 'package:antd_flutter_ui/src/data_entry/checkbox/ant_checkbox.dart';

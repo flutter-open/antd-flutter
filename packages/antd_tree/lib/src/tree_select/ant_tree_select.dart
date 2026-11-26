@@ -425,11 +425,22 @@ class _AntTreeSelectState<T> extends State<AntTreeSelect<T>>
             color: widget.disabled
                 ? t.colorBgContainerDisabled
                 : t.colorBgContainer,
-            border: Border.all(
-              color: _open ? t.colorPrimary : t.colorBorder,
-              width: _open ? t.controlOutlineWidth : 1,
-            ),
             borderRadius: BorderRadius.circular(t.borderRadius),
+            // 打开态光环：2px 无模糊实心外扩环（对齐 Input / antd web）。
+            boxShadow:
+                _open ? antFieldFocusRingOf(t, AntInputStatus.normal) : null,
+          ),
+          // 边框恒 1px 画在前景层，打开态取主色且不再让内容位移。
+          foregroundDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(t.borderRadius),
+            border: Border.all(
+              color: antFieldBorderColorOf(
+                t,
+                AntInputStatus.normal,
+                focused: _open,
+              ),
+              width: 1,
+            ),
           ),
           // 宽度自适应内容（对齐 antd Select 触发器 inline-block 语义）。
           child: Row(

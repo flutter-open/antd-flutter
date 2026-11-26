@@ -8,6 +8,7 @@
 - `AntDatePicker` / `AntTimePicker` now localize the placeholder, month title, weekday labels, confirm/cancel and Today copy in place of hard-coded Chinese strings (issue #5), and accept a per-widget `locale:` argument.
 - `AntDatePicker`'s `format` argument is now honored; `format` / `timeFormat` accept antd patterns such as `yyyy-MM-dd`, `yyyy年M月d日`, `HH:mm` and `hh:mm a`.
 - `AntDatePicker` renders a fixed 6x7 month grid, so the panel no longer changes height between months, and adds `weekStartsOnMonday` / `showToday` options.
+- `AntCascader` trigger: the open state now uses a 1px `colorPrimary` border plus a solid `controlOutline` ring drawn in the foreground layer, instead of a 2px translucent outline that shifted the content by 1px.
 - Depend on `antd_flutter_ui ^1.0.5`: the popup engine keeps a long date-time range panel fully on screen instead of clipping it at the viewport edge.
 - `AntTimePicker` control height now follows the `controlHeight` / `controlHeightSM` / `controlHeightLG` tokens, and its wheel keeps a single `ScrollController` instead of recreating (and leaking) one on every build.
 
