@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.5
+
+- Popup engine: a popup that prefers a vertical direction no longer measures the *horizontal* space to decide whether its opposite side fits, so a long panel that does not fit below the trigger is no longer flipped above it and clipped by the top edge.
+- Popup engine: the popup's main axis is now clamped into the viewport (previously only the cross axis was). A panel that fits neither below nor above the trigger stays fully visible, overlapping the trigger, instead of running off the screen edge.
+
 ## 1.0.4
 
 - Input: fix vertical centering when `addonBefore` / `addonAfter` (or `prefix` / `suffix`) is present. The embedded single-line field now centers its line box inside the control height, so addon text and input text share one baseline; the addon border is drawn in the foreground layer so it no longer shrinks the content box.

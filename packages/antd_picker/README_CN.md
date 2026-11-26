@@ -12,6 +12,8 @@
 - **滚轮数据驱动。** 一列即一个 `AntPickerColumn<T>`，列数与选项渲染都是声明。
 - **触发器由你提供。** 选择器接收 `child` 作为打开弹层的入口，任何按钮、输入框或卡片都可以触发。
 - **日期与时间分离。** `AntDatePicker` 使用 `DateTime`，`AntTimePicker` 使用 `TimeOfDay`，各自带显示 `format` 与步长控制。
+- **范围在一个面板内选完。** `AntDateRangePicker`（以及 `showTime` 版本的 `AntDateTimeRangePicker`）在同一个月历里选起点与终点，时间列也内嵌在同一面板。
+- **文案跟随 App。** 全族组件按 显式 `locale:` 参数 → `AntPickerLocaleProvider` → App `Localizations` 语言的顺序取 `AntPickerLocale`，最终回退中文。
 
 ## 安装
 
@@ -216,6 +218,27 @@ class _DateTimeFormState extends State<DateTimeForm> {
 
 两个字段各自打开弹层，清除时回报 `null`（`allowClear: true` 启用清除入口）。`minuteStep` / `hourStep` 可稀疏化滚轮选项，适合粗粒度排期。
 
+### 4. 日期范围与国际化
+
+```dart
+AntDateRangePicker(
+  defaultValue: AntDateRange.sorted(DateTime(2025, 3, 1), DateTime(2025, 3, 10)),
+  allowClear: true,
+  onChange: (range) => setState(() => _range = range),
+);
+
+// 日期时间范围：该子类的 showTime 默认为 true。
+AntDateTimeRangePicker(
+  value: _dateTimeRange,
+  onChange: (range) => setState(() => _dateTimeRange = range),
+);
+```
+
+- 第一次点击设起点、第二次点击设终点；终点早于起点会自动归正。开启 `showTime` 时需点确定才提交，时分列与月历在同一面板内。
+- `minDate` / `maxDate` 禁用范围外日期，`allowClear` 清除后回报 `null`。
+- 传 `locale: AntPickerLocale.zh` / `.en` / `.ja`（内建 15 种语言预设）固定语言，或在外层包一次 `AntPickerLocaleProvider`；都不指定时跟随 App 的 `Localizations` 语言并回退中文。
+- `format` / `timeFormat` 支持 antd 模板（`yyyy-MM-dd`、`yyyy年M月d日`、`HH:mm`、`hh:mm a`），优先于 locale 默认格式。
+
 ## 演示
 
 - 在线演示：https://flutter-open.github.io/antd-flutter/picker/
@@ -230,8 +253,9 @@ packages/antd_picker/
 │   └── src/
 │       ├── picker/                      # 滚轮弹层与列模型
 │       ├── cascader/                    # 级联字段与内联视图
-│       ├── date_picker/                 # DateTime 字段
-│       └── time_picker/                 # TimeOfDay 字段
+│       ├── date_picker/                 # 日期字段、范围选择器、月面板
+│       ├── locale/                      # AntPickerLocale 语言预设 + 日期格式化
+│       └── time_picker/                 # TimeOfDay 字段 + 共享滚轮
 ├── example/lib/main.dart                # 可运行示例
 ├── docs/api-index.md                    # 生成的 API 索引
 └── README.md

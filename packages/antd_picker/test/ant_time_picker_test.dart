@@ -9,7 +9,10 @@ Widget _wrap(Widget child) {
     home: Scaffold(
       body: AntTheme(
         data: AntThemeData.light(),
-        child: Material(child: child),
+        child: AntPickerLocaleProvider(
+          locale: AntPickerLocale.zh,
+          child: Material(child: child),
+        ),
       ),
     ),
   );

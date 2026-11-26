@@ -5,7 +5,7 @@
 /// - 打开/关闭态边框宽度恒定 → 内容不位移
 library;
 
-import 'package:antd_picker/src/date_picker/ant_date_picker.dart';
+import 'package:antd_picker/antd_picker.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,7 +13,13 @@ import 'package:flutter_test/flutter_test.dart';
 Widget _wrap(Widget child) {
   return MaterialApp(
     home: Scaffold(
-      body: AntTheme(data: AntThemeData.light(), child: Material(child: child)),
+      body: AntTheme(
+        data: AntThemeData.light(),
+        child: AntPickerLocaleProvider(
+          locale: AntPickerLocale.zh,
+          child: Material(child: child),
+        ),
+      ),
     ),
   );
 }

@@ -5,6 +5,7 @@
 /// - [onChange] — 时间变化回调
 /// - [allowClear] — 是否允许清除
 /// - [placeholder] / [disabled] / [size] / [hourStep] / [minuteStep] / [secondStep]
+/// - [format] / [locale] — 显示格式与国际化文案
 ///
 /// ```dart
 /// AntTimePicker(
@@ -14,9 +15,10 @@
 /// ```
 library;
 
-import 'dart:math' as math;
-
 import 'ant_time_picker_types.dart';
+import '../locale/ant_date_format.dart';
+import '../locale/ant_picker_locale.dart';
+import 'ant_time_wheel.dart';
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 
@@ -44,6 +46,8 @@ class AntTimePicker extends StatefulWidget {
     this.hourStep = 1,
     this.minuteStep = 1,
     this.secondStep = 1,
+    this.format,
+    this.locale,
     this.autofocus = false,
     this.labelBuilder,
   });
@@ -60,7 +64,7 @@ class AntTimePicker extends StatefulWidget {
   /// 是否允许清除。
   final bool allowClear;
 
-  /// 占位文本。
+  /// 占位文本（为空时取 [locale] 的时间占位文案）。
   final String? placeholder;
 
   /// 是否禁用。
@@ -78,10 +82,16 @@ class AntTimePicker extends StatefulWidget {
   /// 秒步长。
   final int secondStep;
 
+  /// 时间显示格式（如 `HH:mm:ss`）；为空时取 [locale] 的默认时间格式。
+  final String? format;
+
+  /// 国际化文案；为空时依次取 `AntPickerLocaleProvider`、App 语言、中文。
+  final AntPickerLocale? locale;
+
   /// 是否自动聚焦。
   final bool autofocus;
 
-  /// 触发器时间自定义渲染；为空时按 `HH:mm` 格式化显示。
+  /// 触发器时间自定义渲染；为空时按 [format] 格式化显示。
   final Widget Function(BuildContext context, TimeOfDay time)? labelBuilder;
 
   @override
@@ -126,6 +136,7 @@ class _AntTimePickerState extends State<AntTimePicker> {
     if (_overlayEntry != null) return;
     if (!mounted) return;
     final theme = AntTheme.of(context);
+    final locale = AntPickerLocale.resolve(context, widget.locale);
     _overlayEntry = OverlayEntry(
       builder: (context) => _TimePickerOverlay(
         fieldKey: _fieldKey,
@@ -134,6 +145,7 @@ class _AntTimePickerState extends State<AntTimePicker> {
         minuteStep: widget.minuteStep,
         secondStep: widget.secondStep,
         themeData: theme,
+        locale: locale,
         onSelect: (time) {
           _internalValue = time;
           widget.onChange?.call(time);
@@ -160,29 +172,26 @@ class _AntTimePickerState extends State<AntTimePicker> {
     if (mounted) setState(() {});
   }
 
-  String _formatTime(TimeOfDay t) {
-    final h = t.hour.toString().padLeft(2, '0');
-    final m = t.minute.toString().padLeft(2, '0');
-    return '$h:$m';
-  }
-
-  double get _controlHeight {
+  /// 触发器高度 — 取尺寸级对应的高度 token。
+  double _controlHeight(AntThemeData theme) {
     switch (widget.size) {
       case AntTimePickerSize.large:
-        return 40;
+        return theme.controlHeightLG;
       case AntTimePickerSize.middle:
-        return 32;
+        return theme.controlHeight;
       case AntTimePickerSize.small:
-        return 24;
+        return theme.controlHeightSM;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
-    final height = theme.s(_controlHeight);
+    final locale = AntPickerLocale.resolve(context, widget.locale);
+    final height = theme.s(_controlHeight(theme));
     final open = _currentOpen;
     final value = _currentValue;
+    final timeFormat = widget.format ?? locale.effectiveTimeFormat;
 
     final showClear = widget.allowClear && value != null && !widget.disabled;
 
@@ -190,21 +199,32 @@ class _AntTimePickerState extends State<AntTimePicker> {
       onTap: widget.disabled ? null : () => _setOpen(!open),
       child: CompositedTransformTarget(
         link: _layerLink,
-        child: Container(
+        child: AnimatedContainer(
           key: _fieldKey,
           height: height,
+          duration: const Duration(milliseconds: 150),
           padding: EdgeInsets.symmetric(horizontal: theme.marginSM),
           decoration: BoxDecoration(
             color: widget.disabled
                 ? theme.colorBgContainerDisabled
                 : theme.colorBgContainer,
             borderRadius: BorderRadius.circular(theme.borderRadius),
+            boxShadow: open && !widget.disabled
+                ? [
+                    BoxShadow(
+                      color: theme.controlOutline,
+                      spreadRadius: theme.controlOutlineWidth,
+                    ),
+                  ]
+                : null,
+          ),
+          foregroundDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(theme.borderRadius),
             border: Border.all(
               color: open && !widget.disabled
-                  ? theme.controlOutline
+                  ? theme.colorPrimary
                   : theme.colorBorder,
-              width:
-                  open && !widget.disabled ? theme.controlOutlineWidth : theme.s(1),
+              width: theme.s(1),
             ),
           ),
           child: Row(
@@ -220,7 +240,7 @@ class _AntTimePickerState extends State<AntTimePicker> {
               Expanded(
                 child: value == null
                     ? Text(
-                        widget.placeholder ?? '请选择时间',
+                        widget.placeholder ?? locale.effectiveTimePlaceholder,
                         style: TextStyle(
                           fontSize: theme.fontSize,
                           color: theme.colorTextPlaceholder,
@@ -232,7 +252,9 @@ class _AntTimePickerState extends State<AntTimePicker> {
                           color: theme.colorText,
                         ),
                         child: widget.labelBuilder?.call(context, value) ??
-                            Text(_formatTime(value)),
+                            Text(
+                              formatAntTimeOfDay(value, timeFormat),
+                            ),
                       ),
               ),
               if (showClear)
@@ -272,6 +294,7 @@ class _TimePickerOverlay extends StatefulWidget {
     required this.minuteStep,
     required this.secondStep,
     required this.themeData,
+    required this.locale,
     required this.onSelect,
     required this.onConfirm,
     required this.onDismiss,
@@ -283,6 +306,7 @@ class _TimePickerOverlay extends StatefulWidget {
   final int minuteStep;
   final int secondStep;
   final AntThemeData themeData;
+  final AntPickerLocale locale;
   final ValueChanged<TimeOfDay> onSelect;
   final VoidCallback onConfirm;
   final VoidCallback onDismiss;
@@ -308,22 +332,21 @@ class _TimePickerOverlayState extends State<_TimePickerOverlay> {
     widget.onSelect(TimeOfDay(hour: _hour, minute: _minute));
   }
 
+  List<int> _steps(int max, int step) {
+    final values = <int>[];
+    for (var v = 0; v < max; v += step <= 0 ? 1 : step) {
+      values.add(v);
+    }
+    return values;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = widget.themeData;
 
-    final hours = <int>[];
-    for (var h = 0; h < 24; h += widget.hourStep) {
-      hours.add(h);
-    }
-    final minutes = <int>[];
-    for (var m = 0; m < 60; m += widget.minuteStep) {
-      minutes.add(m);
-    }
-    final seconds = <int>[];
-    for (var s = 0; s < 60; s += widget.secondStep) {
-      seconds.add(s);
-    }
+    final hours = _steps(24, widget.hourStep);
+    final minutes = _steps(60, widget.minuteStep);
+    final seconds = _steps(60, widget.secondStep);
 
     // 弹层基座：位置计算/边界翻转夹回/点击外部关闭统一走 AntPopupOverlay
     return AntPopupOverlay(
@@ -354,14 +377,11 @@ class _TimePickerOverlayState extends State<_TimePickerOverlay> {
             Row(
               children: [
                 Expanded(
-                  child: _WheelColumn(
+                  child: AntTimeWheel(
                     items:
                         hours.map((h) => h.toString().padLeft(2, '0')).toList(),
                     selectedIndex: hours.indexOf(
-                      _hour.clamp(
-                        hours.first,
-                        hours.last,
-                      ),
+                      _hour.clamp(hours.first, hours.last),
                     ),
                     theme: theme,
                     onSelected: (index) {
@@ -372,15 +392,12 @@ class _TimePickerOverlayState extends State<_TimePickerOverlay> {
                 ),
                 _Separator(theme: theme),
                 Expanded(
-                  child: _WheelColumn(
+                  child: AntTimeWheel(
                     items: minutes
                         .map((m) => m.toString().padLeft(2, '0'))
                         .toList(),
                     selectedIndex: minutes.indexOf(
-                      _minute.clamp(
-                        minutes.first,
-                        minutes.last,
-                      ),
+                      _minute.clamp(minutes.first, minutes.last),
                     ),
                     theme: theme,
                     onSelected: (index) {
@@ -391,15 +408,12 @@ class _TimePickerOverlayState extends State<_TimePickerOverlay> {
                 ),
                 _Separator(theme: theme),
                 Expanded(
-                  child: _WheelColumn(
+                  child: AntTimeWheel(
                     items: seconds
                         .map((s) => s.toString().padLeft(2, '0'))
                         .toList(),
                     selectedIndex: seconds.indexOf(
-                      _second.clamp(
-                        seconds.first,
-                        seconds.last,
-                      ),
+                      _second.clamp(seconds.first, seconds.last),
                     ),
                     theme: theme,
                     onSelected: (index) {
@@ -418,7 +432,7 @@ class _TimePickerOverlayState extends State<_TimePickerOverlay> {
                 block: true,
                 onTap: widget.onConfirm,
                 child: Text(
-                  '确定',
+                  widget.locale.effectiveConfirmText,
                   style: TextStyle(fontSize: theme.fontSizeSM),
                 ),
               ),
@@ -449,58 +463,6 @@ class _Separator extends StatelessWidget {
           fontSize: theme.fontSizeLG,
           color: theme.colorTextSecondary,
         ),
-      ),
-    );
-  }
-}
-
-// ============================================================
-// _WheelColumn — 滚轮列
-// ============================================================
-
-class _WheelColumn extends StatelessWidget {
-  const _WheelColumn({
-    required this.items,
-    required this.selectedIndex,
-    required this.theme,
-    required this.onSelected,
-  });
-
-  final List<String> items;
-  final int selectedIndex;
-  final AntThemeData theme;
-  final ValueChanged<int> onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: theme.s(180),
-      child: ListView.builder(
-        padding: EdgeInsets.zero,
-        itemExtent: theme.s(36),
-        scrollDirection: Axis.vertical,
-        itemCount: items.length,
-        controller: ScrollController(
-          initialScrollOffset: math.max(0, selectedIndex - 2) * theme.s(36),
-        ),
-        itemBuilder: (context, index) {
-          final selected = index == selectedIndex;
-          return GestureDetector(
-            onTap: () => onSelected(index),
-            child: Container(
-              alignment: Alignment.center,
-              color: selected ? theme.colorFillSecondary : Colors.transparent,
-              child: Text(
-                items[index],
-                style: TextStyle(
-                  fontSize: theme.fontSize,
-                  fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                  color: selected ? theme.colorPrimary : theme.colorText,
-                ),
-              ),
-            ),
-          );
-        },
       ),
     );
   }

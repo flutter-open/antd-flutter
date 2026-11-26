@@ -24,6 +24,19 @@ class DatePickerPage extends StatelessWidget {
           _SizeDemo(),
           _Section(title: '禁用', description: 'disabled: true'),
           _DisabledDemo(),
+          _Section(title: '国际化', description: 'locale 可显式指定；未指定时跟随 App 语言'),
+          _LocaleDemo(),
+          _Section(title: '自定义格式', description: "format: 'yyyy年M月d日'"),
+          _FormatDemo(),
+          _Section(title: '周一起始', description: 'weekStartsOnMonday: true'),
+          _WeekStartDemo(),
+          _Section(title: '日期范围', description: 'AntDateRangePicker — 两次点击选择起止'),
+          _RangeDemo(),
+          _Section(
+            title: '日期时间范围',
+            description: 'AntDateTimeRangePicker — 面板内选时间，点确定提交',
+          ),
+          _DateTimeRangeDemo(),
         ],
       ),
     );
@@ -175,6 +188,120 @@ class _DisabledDemo extends StatelessWidget {
         SizedBox(
           width: 220,
           child: AntDatePicker(disabled: true, placeholder: '禁用'),
+        ),
+      ],
+    );
+  }
+}
+
+class _LocaleDemo extends StatelessWidget {
+  const _LocaleDemo();
+  @override
+  Widget build(BuildContext context) {
+    return _Row(
+      children: [
+        SizedBox(
+          width: 220,
+          child: AntDatePicker(locale: AntPickerLocale.zh, placeholder: '中文'),
+        ),
+        SizedBox(
+          width: 220,
+          child: AntDatePicker(locale: AntPickerLocale.en, placeholder: '中文'),
+        ),
+        SizedBox(
+          width: 220,
+          child: AntDatePicker(locale: AntPickerLocale.ja, placeholder: '中文'),
+        ),
+      ],
+    );
+  }
+}
+
+class _FormatDemo extends StatelessWidget {
+  const _FormatDemo();
+  @override
+  Widget build(BuildContext context) {
+    return _Row(
+      children: [
+        SizedBox(
+          width: 240,
+          child: AntDatePicker(
+            defaultValue: DateTime(2024, 6, 1),
+            format: 'yyyy年M月d日',
+          ),
+        ),
+        SizedBox(
+          width: 240,
+          child: AntDatePicker(
+            defaultValue: DateTime(2024, 6, 1),
+            format: 'MM/dd/yyyy',
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _WeekStartDemo extends StatelessWidget {
+  const _WeekStartDemo();
+  @override
+  Widget build(BuildContext context) {
+    return _Row(
+      children: [
+        SizedBox(
+          width: 220,
+          child: AntDatePicker(
+            defaultValue: DateTime(2024, 6, 1),
+            weekStartsOnMonday: true,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _RangeDemo extends StatelessWidget {
+  const _RangeDemo();
+  @override
+  Widget build(BuildContext context) {
+    return _Row(
+      children: [
+        SizedBox(
+          width: 340,
+          child: AntDateRangePicker(
+            defaultValue: AntDateRange.sorted(
+              DateTime(2024, 6, 1),
+              DateTime(2024, 6, 15),
+            ),
+            onChange: (range) =>
+                debugPrint('range: ${range?.start} ~ ${range?.end}'),
+          ),
+        ),
+        SizedBox(
+          width: 340,
+          child: AntDateRangePicker(
+            allowClear: true,
+            locale: AntPickerLocale.en,
+            onChange: (range) => debugPrint('range: $range'),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DateTimeRangeDemo extends StatelessWidget {
+  const _DateTimeRangeDemo();
+  @override
+  Widget build(BuildContext context) {
+    return _Row(
+      children: [
+        SizedBox(
+          width: 360,
+          child: AntDateTimeRangePicker(
+            allowClear: true,
+            onChange: (range) => debugPrint('datetime range: $range'),
+          ),
         ),
       ],
     );

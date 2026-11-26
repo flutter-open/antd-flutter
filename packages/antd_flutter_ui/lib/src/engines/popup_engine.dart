@@ -170,7 +170,10 @@ abstract final class PopupEngine {
     final preferredVertical = preferred == AntPopupDirection.top || preferred == AntPopupDirection.bottom;
     final firstFits = preferredVertical ? (preferred == AntPopupDirection.top ? fitsTop : fitsBottom) : (preferred == AntPopupDirection.left ? fitsLeft : fitsRight);
     final opposite = _flip(preferred);
-    final oppositeVertical = !preferredVertical;
+    // 对侧与首选方向同轴：bottom 的对侧是 top（仍是垂直），left 的对侧是 right。
+    // 曾误写成「!preferredVertical」，导致垂直首选时用水平空间判定对侧能否放下，
+    // 长面板（如 RangePicker）在下方放不下时会被误翻到上方并溢出屏幕顶部被裁切。
+    final oppositeVertical = preferredVertical;
     final oppositeFits = oppositeVertical ? (opposite == AntPopupDirection.top ? fitsTop : fitsBottom) : (opposite == AntPopupDirection.left ? fitsLeft : fitsRight);
 
     if (firstFits) {
@@ -212,6 +215,18 @@ abstract final class PopupEngine {
         offsetMain = targetRect.left - gap - arrowSize - bubbleMain;
       case AntPopupDirection.right:
         offsetMain = targetRect.right + gap + arrowSize;
+    }
+
+    // 主轴夹回：气泡比视口小时保证整块面板留在屏幕内。
+    // 垂直/水平两侧都放不下（长面板 + 矮视口，如 RangePicker 带时间轮）时，
+    // 上面算出的 offsetMain 会越界，面板被屏幕边缘裁掉；此时允许与触发元素重叠，
+    // 把气泡沿主轴推回视口内，用户仍能看到并操作完整面板。
+    final mainViewportStart = directionVertical ? viewport.top : viewport.left;
+    final mainViewportSize = directionVertical ? viewport.height : viewport.width;
+    if (bubbleMain <= mainViewportSize - margin * 2) {
+      final minMain = mainViewportStart + margin;
+      final maxMain = mainViewportStart + mainViewportSize - margin - bubbleMain;
+      offsetMain = offsetMain.clamp(minMain, maxMain);
     }
 
     // 沿边锚点（触发元素上的锚点位置）

@@ -126,6 +126,9 @@ export 'package:antd_flutter_ui/src/data_entry/selector/ant_selector_types.dart'
 // AntDatePicker / AntTimePicker 已迁移至独立包 antd_picker（P08 批次 1，从 ui 迁出），此处 re-export 保持符号兼容
 export 'package:antd_picker/src/date_picker/ant_date_picker.dart';
 export 'package:antd_picker/src/date_picker/ant_date_picker_types.dart';
+export 'package:antd_picker/src/date_picker/ant_date_range_picker.dart';
+export 'package:antd_picker/src/date_picker/ant_date_range_types.dart';
+export 'package:antd_picker/src/locale/ant_picker_locale.dart';
 export 'package:antd_picker/src/time_picker/ant_time_picker.dart';
 export 'package:antd_picker/src/time_picker/ant_time_picker_types.dart';
 export 'package:antd_flutter_ui/src/data_entry/slider/ant_slider.dart';

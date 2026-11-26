@@ -3,6 +3,9 @@
 /// 从主包 antd_flutter_plus（此前误迁 ui）拆分的独立组件包：
 /// - [AntPicker] — 滚轮选择器（单列 / 多列联动，对齐 antd-mobile Picker API）
 /// - [AntDatePicker] — 日期选择器（年月日，对齐 antd-mobile DatePicker API）
+/// - [AntDateRangePicker] — 日期范围选择器（对齐 antd React DatePicker.RangePicker）
+/// - [AntDateTimeRangePicker] — 日期时间范围选择器（RangePicker + showTime）
+/// - [AntPickerLocale] — 选择器族国际化文案（并可经 AntPickerLocaleProvider 全局生效）
 /// - [AntTimePicker] — 时间选择器（时分秒，对齐 antd-mobile TimePicker API）
 /// - [AntCascader] — 级联选择器（对齐 antd-mobile Cascader API）
 /// - [AntCascaderView] — 内嵌级联视图（不弹层直接内嵌）
@@ -26,6 +29,10 @@ export 'src/picker/ant_picker_types.dart';
 
 export 'src/date_picker/ant_date_picker.dart';
 export 'src/date_picker/ant_date_picker_types.dart';
+export 'src/date_picker/ant_date_range_picker.dart';
+export 'src/date_picker/ant_date_range_types.dart';
+
+export 'src/locale/ant_picker_locale.dart';
 
 export 'src/time_picker/ant_time_picker.dart';
 export 'src/time_picker/ant_time_picker_types.dart';

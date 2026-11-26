@@ -12,6 +12,8 @@ Design rules:
 - **Wheels are data-driven.** A column is `AntPickerColumn<T>`; column count and item rendering are declarations.
 - **The trigger is yours.** Pickers accept a `child` widget that opens the sheet, so any button, field, or card can be the entry point.
 - **Date and time stay separate.** `AntDatePicker` works in `DateTime`, `AntTimePicker` in `TimeOfDay`, each with its own display `format` / step controls.
+- **Ranges pick both ends in one panel.** `AntDateRangePicker` (and `AntDateTimeRangePicker` with `showTime`) selects a start and an end in a single calendar, with an in-panel time step.
+- **Copy follows the app.** The whole family reads `AntPickerLocale` from an explicit `locale:` argument, an `AntPickerLocaleProvider`, or the app's `Localizations` language, falling back to Chinese.
 
 ## Installation
 
@@ -216,6 +218,27 @@ class _DateTimeFormState extends State<DateTimeForm> {
 
 Both fields open their own sheet and report `null` when cleared (`allowClear: true` enables the clear affordance). `minuteStep` / `hourStep` thin out the wheel options for coarse scheduling.
 
+### 4. Date ranges and localization
+
+```dart
+AntDateRangePicker(
+  defaultValue: AntDateRange.sorted(DateTime(2025, 3, 1), DateTime(2025, 3, 10)),
+  allowClear: true,
+  onChange: (range) => setState(() => _range = range),
+);
+
+// Date-time range: showTime defaults to true on this subclass.
+AntDateTimeRangePicker(
+  value: _dateTimeRange,
+  onChange: (range) => setState(() => _dateTimeRange = range),
+);
+```
+
+- The first click sets the start, the second click sets the end; an end earlier than the start is normalized automatically. With `showTime` the range is committed only after the confirm button, and the time columns appear inside the same panel.
+- `minDate` / `maxDate` disable out-of-range days, and `allowClear` resets the range to `null`.
+- Pass `locale: AntPickerLocale.zh` / `.en` / `.ja` (15 built-in presets) to pin a language, or wrap the tree once in `AntPickerLocaleProvider`; without either, the pickers follow the app's `Localizations` locale and fall back to Chinese.
+- `format` / `timeFormat` accept antd patterns such as `yyyy-MM-dd`, `yyyy年M月d日`, `HH:mm` or `hh:mm a`, and override the locale defaults.
+
 ## Demo
 
 - Live demo: https://flutter-open.github.io/antd-flutter/picker/
@@ -230,8 +253,9 @@ packages/antd_picker/
 │   └── src/
 │       ├── picker/                      # wheel sheet and column model
 │       ├── cascader/                    # cascading field and inline view
-│       ├── date_picker/                 # DateTime field
-│       └── time_picker/                 # TimeOfDay field
+│       ├── date_picker/                 # date field, range picker, month panel
+│       ├── locale/                      # AntPickerLocale presets + date formatting
+│       └── time_picker/                 # TimeOfDay field + shared wheel
 ├── example/lib/main.dart                # runnable gallery
 ├── docs/api-index.md                    # generated API index
 └── README.md

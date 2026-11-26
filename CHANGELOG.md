@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.3
+
+- Re-export `AntDateRangePicker`, `AntDateTimeRangePicker`, `AntPickerLocale` and `AntPickerLocaleProvider` from `antd_picker`.
+- Bump `antd_flutter_ui` to `^1.0.5`: the popup engine now clamps a popup's main axis into the viewport, so a long panel that does not fit next to its trigger stays fully visible instead of being clipped.
+- Bump `antd_picker` to `^1.1.0`: date range and date-time range pickers, plus localization for the date/time picker family.
+
 ## 1.0.2
 
 - Bump `antd_flutter_ui` to `^1.0.4`: vertical centering of `addonBefore` / `addonAfter` input rows, a solid status-aware focus ring, and Popover bubbles that size to their content (`width` / `minWidth` / `maxWidth`).

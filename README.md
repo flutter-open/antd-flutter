@@ -133,7 +133,7 @@ The umbrella aggregates the following 21 packages. Paths are relative to the rep
 | `antd_splitter` | Resizable split panels with constraints | `packages/antd_splitter` |
 | `antd_floating` | Floating panel and floating bubble | `packages/antd_floating` |
 
-The umbrella also re-exports selected entry points that are convenient at application level: `AntDatePicker` / `AntTimePicker` / `AntCascader` from `antd_picker`, `AntPullToRefresh` from `antd_refresh`, `AntTable`, `AntForm`, and `AntSwipeAction`.
+The umbrella also re-exports selected entry points that are convenient at application level: `AntDatePicker` / `AntTimePicker` / `AntDateRangePicker` / `AntDateTimeRangePicker` / `AntCascader` / `AntPickerLocale` from `antd_picker`, `AntPullToRefresh` from `antd_refresh`, `AntTable`, `AntForm`, and `AntSwipeAction`.
 
 ## Umbrella or standalone packages?
 

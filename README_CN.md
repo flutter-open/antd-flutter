@@ -133,7 +133,7 @@ class PlusDemoPage extends StatelessWidget {
 | `antd_splitter` | 带约束的可拖拽分栏面板 | `packages/antd_splitter` |
 | `antd_floating` | 浮动面板与悬浮气泡 | `packages/antd_floating` |
 
-伞包还再导出了若干应用层常用的入口：`antd_picker` 的 `AntDatePicker` / `AntTimePicker` / `AntCascader`、`antd_refresh` 的 `AntPullToRefresh`、`AntTable`、`AntForm`，以及 `AntSwipeAction`。
+伞包还再导出了若干应用层常用的入口：`antd_picker` 的 `AntDatePicker` / `AntTimePicker` / `AntDateRangePicker` / `AntDateTimeRangePicker` / `AntCascader` / `AntPickerLocale`、`antd_refresh` 的 `AntPullToRefresh`、`AntTable`、`AntForm`，以及 `AntSwipeAction`。
 
 ## 伞包还是独立包？
 

@@ -177,6 +177,57 @@ void main() {
     });
   });
 
+  group('PopupEngine — 长面板主轴夹回', () {
+    test('垂直两侧都放不下时按水平空间选向，不误翻到对侧', () {
+      // 高面板在窄视口里：上、下都放不下，左右还有空间 → 应走 left/right，
+      // 而不是因「对侧按水平空间判定」误翻到上方并溢出屏幕。
+      final layout = PopupEngine.solve(
+        targetRect: const Rect.fromLTWH(600, 380, 320, 32),
+        bubbleSize: const Size(320, 520),
+        viewport: _viewport(width: 1280, height: 813),
+        placement: AntPopupPlacement.bottomLeft,
+        gap: 8,
+      );
+      expect(
+        layout.direction,
+        anyOf(AntPopupDirection.left, AntPopupDirection.right),
+      );
+      expect(layout.offset.dy, greaterThanOrEqualTo(8));
+      expect(layout.offset.dy + 520, lessThanOrEqualTo(813 - 8));
+    });
+
+    test('两侧都放不下且水平也没空间时主轴夹回视口内', () {
+      // 手机竖屏：字段在中部，520 高面板上下都放不下，左右也不够 → 主轴夹回，
+      // 允许与触发元素重叠，但面板必须完整可见（不再溢出屏幕顶部被裁切）。
+      final layout = PopupEngine.solve(
+        targetRect: const Rect.fromLTWH(35, 406, 320, 32),
+        bubbleSize: const Size(320, 520),
+        viewport: _viewport(width: 390, height: 844),
+        placement: AntPopupPlacement.bottomLeft,
+        gap: 8,
+      );
+      expect(
+        layout.direction,
+        anyOf(AntPopupDirection.top, AntPopupDirection.bottom),
+      );
+      expect(layout.offset.dy, greaterThanOrEqualTo(8));
+      expect(layout.offset.dy + 520, lessThanOrEqualTo(844 - 8));
+    });
+
+    test('气泡比视口还高时不做夹回（保持原方向偏移）', () {
+      final layout = PopupEngine.solve(
+        targetRect: const Rect.fromLTWH(35, 300, 320, 32),
+        bubbleSize: const Size(320, 700),
+        viewport: _viewport(width: 390, height: 600),
+        placement: AntPopupPlacement.bottom,
+        gap: 8,
+      );
+      // 上下都放不下、左右也不够 → 取空间更大的上方；气泡高于视口，夹回无意义
+      expect(layout.direction, AntPopupDirection.top);
+      expect(layout.offset.dy, 300 - 8 - 700);
+    });
+  });
+
   group('PopupEngine — 箭头 tip clamp', () {
     test('箭头跟随触发元素中心', () {
       final layout = PopupEngine.solve(

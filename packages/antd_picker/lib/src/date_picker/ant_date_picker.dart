@@ -5,16 +5,14 @@
 /// - [onChange] — 日期变化回调
 /// - [allowClear] — 是否允许清除
 /// - [placeholder] / [disabled] / [size]
-///
-/// ```dart
-/// AntDatePicker(
-///   defaultValue: DateTime(2024, 1, 15),
-///   onChange: (date) => print(date),
-/// )
-/// ```
+/// - [format] — 显示格式（支持 `yyyy` / `MM` / `dd` / `HH` / `mm` / `ss` 等）
+/// - [locale] — 国际化文案（周标签 / 年月标题 / 占位文案跟随语言）
 library;
 
+import 'ant_date_panel.dart';
 import 'ant_date_picker_types.dart';
+import '../locale/ant_date_format.dart';
+import '../locale/ant_picker_locale.dart';
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 
@@ -39,7 +37,10 @@ class AntDatePicker extends StatefulWidget {
     this.placeholder,
     this.disabled = false,
     this.size = AntDatePickerSize.middle,
-    this.format = 'yyyy-MM-dd',
+    this.format,
+    this.locale,
+    this.weekStartsOnMonday = false,
+    this.showToday = true,
     this.autofocus = false,
     this.labelBuilder,
   });
@@ -56,7 +57,7 @@ class AntDatePicker extends StatefulWidget {
   /// 是否允许清除。
   final bool allowClear;
 
-  /// 占位文本。
+  /// 占位文本（为空时取 [locale] 的日期占位文案）。
   final String? placeholder;
 
   /// 是否禁用。
@@ -65,8 +66,19 @@ class AntDatePicker extends StatefulWidget {
   /// 尺寸。
   final AntDatePickerSize size;
 
-  /// 日期显示格式（目前支持 yyyy-MM-dd）。
-  final String format;
+  /// 日期显示格式，如 `yyyy-MM-dd` / `MM/dd/yyyy` / `yyyy年MM月dd日`。
+  ///
+  /// 为空时取 [locale] 的默认格式（中文 `yyyy-MM-dd`、英文 `MM/dd/yyyy`）。
+  final String? format;
+
+  /// 国际化文案；为空时依次取 `AntPickerLocaleProvider`、App 语言、中文。
+  final AntPickerLocale? locale;
+
+  /// 周起始是否为周一（默认周日，与既有行为一致）。
+  final bool weekStartsOnMonday;
+
+  /// 面板是否显示「今天」快捷按钮。
+  final bool showToday;
 
   /// 是否自动聚焦。
   final bool autofocus;
@@ -121,12 +133,16 @@ class _AntDatePickerState extends State<AntDatePicker> {
     if (_overlayEntry != null) return;
     if (!mounted) return;
     final theme = AntTheme.of(context);
+    final locale = AntPickerLocale.resolve(context, widget.locale);
     _overlayEntry = OverlayEntry(
       builder: (context) => _DatePickerOverlay(
         fieldKey: _fieldKey,
         panelMonth: _panelMonth,
         selectedDate: _currentValue,
         themeData: theme,
+        locale: locale,
+        weekStartsOnMonday: widget.weekStartsOnMonday,
+        showToday: widget.showToday,
         onPanelChange: (month) {
           if (!mounted) return;
           setState(() => _panelMonth = month);
@@ -154,12 +170,9 @@ class _AntDatePickerState extends State<AntDatePicker> {
     if (mounted) setState(() {});
   }
 
-  String _formatDate(DateTime d) {
-    final y = d.year.toString().padLeft(4, '0');
-    final m = d.month.toString().padLeft(2, '0');
-    final day = d.day.toString().padLeft(2, '0');
-    return '$y-$m-$day';
-  }
+  /// 按 [AntDatePicker.format]（为空时取 locale 默认格式）格式化日期。
+  String _formatDate(DateTime date, AntPickerLocale locale) =>
+      formatAntDate(date, widget.format ?? locale.effectiveDateFormat);
 
   /// 触发器高度 — 取尺寸级对应的高度 token（不再硬编码 40/32/24，
   /// 主题自定义 controlHeight* 时同步生效）。
@@ -177,6 +190,7 @@ class _AntDatePickerState extends State<AntDatePicker> {
   @override
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
+    final locale = AntPickerLocale.resolve(context, widget.locale);
     final height = theme.s(_controlHeight(theme));
     final open = _currentOpen;
     final value = _currentValue;
@@ -233,7 +247,7 @@ class _AntDatePickerState extends State<AntDatePicker> {
               Expanded(
                 child: value == null
                     ? Text(
-                        widget.placeholder ?? '请选择日期',
+                        widget.placeholder ?? locale.effectiveDatePlaceholder,
                         style: TextStyle(
                           fontSize: theme.fontSize,
                           color: theme.colorTextPlaceholder,
@@ -245,7 +259,7 @@ class _AntDatePickerState extends State<AntDatePicker> {
                           color: theme.colorText,
                         ),
                         child: widget.labelBuilder?.call(context, value) ??
-                            Text(_formatDate(value)),
+                            Text(_formatDate(value, locale)),
                       ),
               ),
               if (showClear)
@@ -283,6 +297,9 @@ class _DatePickerOverlay extends StatelessWidget {
     required this.panelMonth,
     required this.selectedDate,
     required this.themeData,
+    required this.locale,
+    required this.weekStartsOnMonday,
+    required this.showToday,
     required this.onPanelChange,
     required this.onSelect,
     required this.onDismiss,
@@ -292,46 +309,16 @@ class _DatePickerOverlay extends StatelessWidget {
   final DateTime panelMonth;
   final DateTime? selectedDate;
   final AntThemeData themeData;
+  final AntPickerLocale locale;
+  final bool weekStartsOnMonday;
+  final bool showToday;
   final ValueChanged<DateTime> onPanelChange;
   final ValueChanged<DateTime> onSelect;
   final VoidCallback onDismiss;
 
-  static const _weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-
   @override
   Widget build(BuildContext context) {
     final theme = themeData;
-
-    final year = panelMonth.year;
-    final month = panelMonth.month;
-    final firstDay = DateTime(year, month, 1);
-    final daysInMonth = DateTime(year, month + 1, 0).day;
-    final leadingBlanks = firstDay.weekday % 7;
-
-    final today = DateTime.now();
-    bool isToday(d) =>
-        d.year == today.year && d.month == today.month && d.day == today.day;
-
-    final dayCells = <Widget>[];
-    for (var i = 0; i < leadingBlanks; i++) {
-      dayCells.add(const SizedBox.shrink());
-    }
-    for (var day = 1; day <= daysInMonth; day++) {
-      final date = DateTime(year, month, day);
-      final selected = selectedDate != null &&
-          selectedDate!.year == date.year &&
-          selectedDate!.month == date.month &&
-          selectedDate!.day == date.day;
-      dayCells.add(
-        _DayCell(
-          day: day,
-          selected: selected,
-          isToday: isToday(date),
-          theme: theme,
-          onTap: () => onSelect(date),
-        ),
-      );
-    }
 
     // 弹层基座：位置计算/边界翻转夹回/点击外部关闭统一走 AntPopupOverlay
     return AntPopupOverlay(
@@ -341,129 +328,24 @@ class _DatePickerOverlay extends StatelessWidget {
       child: Container(
         width: theme.s(280),
         padding: EdgeInsets.all(theme.s(12)),
-        decoration: BoxDecoration(
-          color: theme.colorBgContainer,
-          borderRadius: BorderRadius.circular(theme.borderRadiusLG),
-          border: Border.all(color: theme.colorSplit),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
+        decoration: antDatePanelDecoration(theme),
+        child: AntDateMonthPanel(
+          theme: theme,
+          locale: locale,
+          panelMonth: panelMonth,
+          weekStartsOnMonday: weekStartsOnMonday,
+          showToday: showToday,
+          onPanelChange: onPanelChange,
+          onToday: () => onSelect(dateOnly(DateTime.now())),
+          cellBuilder: (context, data) => _DayCell(
+            data: AntDateCellData(
+              date: data.date,
+              isToday: data.isToday,
+              isSelected:
+                  selectedDate != null && isSameDay(selectedDate!, data.date),
             ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // 年月导航
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _NavButton(
-                  icon: AntIcons.leftOutlined,
-                  theme: theme,
-                  onTap: () => onPanelChange(
-                    DateTime(year, month - 1, 1),
-                  ),
-                ),
-                Text(
-                  '$year年$month月',
-                  style: TextStyle(
-                    fontSize: theme.fontSize,
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorText,
-                  ),
-                ),
-                _NavButton(
-                  icon: AntIcons.rightOutlined,
-                  theme: theme,
-                  onTap: () => onPanelChange(
-                    DateTime(year, month + 1, 1),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: theme.s(8)),
-            // 星期表头
-            Row(
-              children: _weekdays
-                  .map(
-                    (w) => Expanded(
-                      child: Center(
-                        child: Text(
-                          w,
-                          style: TextStyle(
-                            fontSize: theme.fontSizeSM,
-                            color: theme.colorTextTertiary,
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                  .toList(),
-            ),
-            SizedBox(height: theme.s(4)),
-            // 日期网格
-            GridView.count(
-              crossAxisCount: 7,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: theme.s(2),
-              crossAxisSpacing: theme.s(2),
-              childAspectRatio: 1,
-              children: dayCells,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ============================================================
-// _DayCell — 日期单元格
-// ============================================================
-
-class _DayCell extends StatelessWidget {
-  const _DayCell({
-    required this.day,
-    required this.selected,
-    required this.isToday,
-    required this.theme,
-    required this.onTap,
-  });
-
-  final int day;
-  final bool selected;
-  final bool isToday;
-  final AntThemeData theme;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = theme;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: selected ? t.colorPrimary : Colors.transparent,
-          borderRadius: BorderRadius.circular(t.borderRadius),
-          border: isToday && !selected
-              ? Border.all(color: t.colorPrimary, width: theme.s(1))
-              : null,
-        ),
-        child: Center(
-          child: Text(
-            '$day',
-            style: TextStyle(
-              fontSize: t.fontSizeSM,
-              color: selected
-                  ? Colors.white
-                  : isToday
-                      ? t.colorPrimary
-                      : t.colorText,
-            ),
+            theme: theme,
+            onTap: () => onSelect(data.date),
           ),
         ),
       ),
@@ -472,34 +354,50 @@ class _DayCell extends StatelessWidget {
 }
 
 // ============================================================
-// _NavButton — 月份导航按钮
+// _DayCell — 日期单元格（单日期选择）
 // ============================================================
 
-class _NavButton extends StatelessWidget {
-  const _NavButton({
-    required this.icon,
+class _DayCell extends StatelessWidget {
+  const _DayCell({
+    required this.data,
     required this.theme,
     required this.onTap,
   });
 
-  final IconData icon;
+  final AntDateCellData data;
   final AntThemeData theme;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: theme.s(28),
-        height: theme.s(28),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(theme.borderRadius),
-        ),
-        child: Icon(
-          icon,
-          size: theme.s(18),
-          color: theme.colorTextSecondary,
+    final t = theme;
+    final selected = data.isSelected;
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: selected ? t.colorPrimary : Colors.transparent,
+            borderRadius: BorderRadius.circular(t.borderRadius),
+            border: data.isToday && !selected
+                ? Border.all(color: t.colorPrimary, width: theme.s(1))
+                : null,
+          ),
+          child: Center(
+            child: Text(
+              '${data.date.day}',
+              style: TextStyle(
+                fontSize: t.fontSizeSM,
+                color: selected
+                    ? Colors.white
+                    : data.isToday
+                        ? t.colorPrimary
+                        : t.colorText,
+              ),
+            ),
+          ),
         ),
       ),
     );

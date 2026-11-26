@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.0
+
+- Add `AntDateRangePicker`: pick a start and an end date in one panel, with `allowClear`, `minDate` / `maxDate`, `weekStartsOnMonday`, `showToday` and automatic start/end ordering.
+- Add `AntDateTimeRangePicker`: a `AntDateRangePicker` subclass whose `showTime` defaults to `true`, adding hour/minute columns plus confirm/cancel actions inside the same panel.
+- Add `AntPickerLocale` and `AntPickerLocaleProvider`: 15 built-in language presets (`zh`, `zhTw`, `en`, `ja`, `ko`, `fr`, `de`, `es`, `ru`, `pt`, `it`, `ar`, `th`, `vi`, `id`) with per-field fallback, custom `messages`, and automatic resolution from the app's `Localizations` locale.
+- `AntDatePicker` / `AntTimePicker` now localize the placeholder, month title, weekday labels, confirm/cancel and Today copy in place of hard-coded Chinese strings (issue #5), and accept a per-widget `locale:` argument.
+- `AntDatePicker`'s `format` argument is now honored; `format` / `timeFormat` accept antd patterns such as `yyyy-MM-dd`, `yyyy年M月d日`, `HH:mm` and `hh:mm a`.
+- `AntDatePicker` renders a fixed 6x7 month grid, so the panel no longer changes height between months, and adds `weekStartsOnMonday` / `showToday` options.
+- Depend on `antd_flutter_ui ^1.0.5`: the popup engine keeps a long date-time range panel fully on screen instead of clipping it at the viewport edge.
+- `AntTimePicker` control height now follows the `controlHeight` / `controlHeightSM` / `controlHeightLG` tokens, and its wheel keeps a single `ScrollController` instead of recreating (and leaking) one on every build.
+
 ## 1.0.2
 
 - DatePicker trigger: the open state now uses a `colorPrimary` 1px border plus a solid `controlOutline` ring instead of a pale 2px outline, so the focus treatment matches antd and follows the primary color.
