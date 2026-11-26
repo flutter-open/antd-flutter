@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.6
+
+- `AntSelect` gains `status`: the trigger border and focus ring follow the validation state (`colorError` / `colorWarning`, with `colorErrorOutline` / `colorWarningOutline` rings), matching `AntInput`.
+- `AntSelect` gains `maxTagCount` for multiple mode: tags beyond the limit collapse into a `+N` counter tag instead of expanding the control height.
+- Export `antFieldBorderColorOf`, `antFieldFocusOutlineOf` and `antFieldFocusRingOf` helpers so every field-styled control can share the same border/ring treatment.
+
 ## 1.0.5
 
 - Popup engine: a popup that prefers a vertical direction no longer measures the *horizontal* space to decide whether its opposite side fits, so a long panel that does not fit below the trigger is no longer flipped above it and clipped by the top edge.

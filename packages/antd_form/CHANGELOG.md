@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.2
+
+- Form item spacing is configurable: `AntForm.itemMarginBottom` / `AntFormItem.marginBottom` replace the hard-coded 16px bottom padding, and an item with help/extra text now defaults to `0` bottom spacing (antd `.ant-form-item-with-help { margin-bottom: 0 }`), fixing the extra gap reported in issue #8. Explicit values always win, including when help text is present.
+- Hint styling is configurable: `hintColor` (form level and per item) replaces the hard-coded `colorTextTertiary`, defaulting to `colorTextDescription`; `labelColor` colors the label.
+- Label-to-control spacing uses the `marginXS` token instead of a magic number, and inline items keep their right/bottom rhythm.
+
 ## 1.0.1
 
 - Fix pub.dev static analysis results by aligning internal dependency constraints.

@@ -12,6 +12,7 @@
 - **Per-field validation moment.** `AntFormValidateTrigger.onChange` validates while the user types; `onSubmit` validates only when the form is submitted.
 - **Binding through a builder.** `AntFormItem<T>` passes an `AntFormField<T>` with `value`, `errorText` and `didChange`, so the package stays agnostic about the control you use and avoids a parallel `TextEditingController` lifecycle.
 - **Layout belongs to the form.** `vertical`, `horizontal` (with `labelWidth`) and `inline` are form-level settings; items read them from the surrounding `AntForm` scope.
+- **Spacing and hint colors are configurable.** `AntForm.itemMarginBottom` / `AntFormItem.marginBottom` override the default 16px bottom padding (items with `help` / `extra` text default to none), `hintColor` (form and item level) overrides the hint text color (`colorTextDescription` by default), and `labelColor` recolors the label.
 - **No hidden submit button.** The form never renders actions. Choose where submit and reset live and call `AntForm.controllerOf(context)?.submit()` or your own controller reference.
 
 ## Installation
@@ -118,6 +119,29 @@ class FormDemoPage extends StatelessWidget {
 [API reference](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_form/docs/api-index.md)
 
 Import `package:antd_form/antd_form.dart` for the form widgets. The snippets use `AntInput`, `AntTheme` and Material widgets from the packages listed above.
+
+### Tuning item spacing and hint colors
+
+```dart
+AntForm(
+  itemMarginBottom: 24,        // form level: 24px below every item
+  hintColor: Colors.grey,      // form level: help / extra text color
+  children: [
+    AntFormItem<String>(
+      name: 'address',
+      label: 'Legal representative address',
+      hintColor: Colors.blueGrey, // item level wins
+      marginBottom: 4,            // item level wins
+      builder: (field) => AntInput(
+        value: field.value as String?,
+        onChange: field.didChange,
+      ),
+    ),
+  ],
+);
+```
+
+Without configuration the bottom spacing is the theme `margin` (16); as soon as an item renders `help` / `error` / `extra` text it defaults to zero, letting the text row provide the gap — the same rule as antd `.ant-form-item-with-help`.
 
 ### Field with a custom validator
 

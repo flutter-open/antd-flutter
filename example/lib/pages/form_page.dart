@@ -19,6 +19,8 @@ class FormPage extends StatelessWidget {
           _ValidationFormSection(),
           SizedBox(height: 24),
           _DisabledFormSection(),
+          SizedBox(height: 24),
+          _SpacingFormSection(),
         ],
       ),
     );
@@ -273,6 +275,56 @@ class _DisabledFormSection extends StatelessWidget {
               value: field.value ?? '',
               onChange: field.didChange,
               disabled: true,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SpacingFormSection extends StatelessWidget {
+  const _SpacingFormSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return _Section(
+      title: '间距与提示色',
+      description: '表单级 / 字段级覆盖底部间距、提示文案颜色与标签颜色',
+      child: AntForm(
+        itemMarginBottom: 24,
+        hintColor: const Color(0xFF1677FF),
+        labelColor: const Color(0xFF08979C),
+        children: [
+          AntFormItem<String>(
+            name: 'spacing-address',
+            label: '法人身份证地址',
+            required: true,
+            builder: (field) => AntInput(
+              value: field.value ?? '',
+              onChange: field.didChange,
+              placeholder: '法人身份证地址',
+            ),
+          ),
+          AntFormItem<DateTime?>(
+            name: 'spacing-start',
+            label: '身份证开始日期',
+            required: true,
+            builder: (field) => AntDatePicker(
+              value: field.value,
+              onChange: field.didChange,
+              placeholder: '请选择日期',
+            ),
+          ),
+          AntFormItem<DateTime?>(
+            name: 'spacing-end',
+            label: '身份证结束日期',
+            help: '证件有效期须大于 60 天；若证件结束日期为长期，则结束日期可不选',
+            marginBottom: 4,
+            builder: (field) => AntDatePicker(
+              value: field.value,
+              onChange: field.didChange,
+              placeholder: '请选择日期',
             ),
           ),
         ],

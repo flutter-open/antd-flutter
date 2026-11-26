@@ -37,6 +37,16 @@ class DatePickerPage extends StatelessWidget {
             description: 'AntDateTimeRangePicker — 面板内选时间，点确定提交',
           ),
           _DateTimeRangeDemo(),
+          _Section(
+            title: '校验状态',
+            description: 'status: error / warning 让边框与光环跟随校验色',
+          ),
+          _StatusDemo(),
+          _Section(
+            title: '可选范围',
+            description: 'minDate / maxDate / disabledDate 逐日禁用',
+          ),
+          _DisabledDateDemo(),
         ],
       ),
     );
@@ -301,6 +311,68 @@ class _DateTimeRangeDemo extends StatelessWidget {
           child: AntDateTimeRangePicker(
             allowClear: true,
             onChange: (range) => debugPrint('datetime range: $range'),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatusDemo extends StatelessWidget {
+  const _StatusDemo();
+  @override
+  Widget build(BuildContext context) {
+    return _Row(
+      children: [
+        SizedBox(
+          width: 200,
+          child: AntDatePicker(
+            placeholder: 'error 状态',
+            status: AntInputStatus.error,
+          ),
+        ),
+        SizedBox(
+          width: 200,
+          child: AntDatePicker(
+            placeholder: 'warning 状态',
+            status: AntInputStatus.warning,
+          ),
+        ),
+        SizedBox(
+          width: 200,
+          child: AntTimePicker(
+            placeholder: 'error 状态',
+            status: AntInputStatus.error,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DisabledDateDemo extends StatelessWidget {
+  const _DisabledDateDemo();
+  @override
+  Widget build(BuildContext context) {
+    return _Row(
+      children: [
+        SizedBox(
+          width: 220,
+          child: AntDatePicker(
+            placeholder: '仅可选 2024 年',
+            minDate: DateTime(2024, 1, 1),
+            maxDate: DateTime(2024, 12, 31),
+            defaultValue: DateTime(2024, 6, 15),
+          ),
+        ),
+        SizedBox(
+          width: 220,
+          child: AntDatePicker(
+            placeholder: '仅可选工作日',
+            defaultValue: DateTime(2024, 6, 17),
+            disabledDate: (date) =>
+                date.weekday == DateTime.saturday ||
+                date.weekday == DateTime.sunday,
           ),
         ),
       ],

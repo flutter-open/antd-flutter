@@ -60,6 +60,8 @@ class AntDateRangePicker extends StatefulWidget {
     this.showTime = false,
     this.timeFormat,
     this.autofocus = false,
+    this.status = AntInputStatus.normal,
+    this.disabledDate,
     this.minDate,
     this.maxDate,
     this.labelBuilder,
@@ -112,6 +114,14 @@ class AntDateRangePicker extends StatefulWidget {
 
   /// 是否自动聚焦。
   final bool autofocus;
+
+  /// 校验状态（error / warning 时边框与光环跟随主题校验色）。
+  final AntInputStatus status;
+
+  /// 日期是否不可选；返回 true 的日期不可点击（灰色显示）。
+  ///
+  /// 与 [minDate] / [maxDate] 同时生效。
+  final bool Function(DateTime date)? disabledDate;
 
   /// 可选日期下限（含）。
   final DateTime? minDate;
@@ -182,6 +192,7 @@ class _AntDateRangePickerState extends State<AntDateRangePicker> {
         showTime: widget.showTime,
         minDate: widget.minDate,
         maxDate: widget.maxDate,
+        disabledDate: widget.disabledDate,
         onPanelChange: (month) {
           if (!mounted) return;
           setState(() => _panelMonth = month);
@@ -264,7 +275,7 @@ class _AntDateRangePickerState extends State<AntDateRangePicker> {
             boxShadow: open && !widget.disabled
                 ? [
                     BoxShadow(
-                      color: theme.controlOutline,
+                      color: antFieldFocusOutlineOf(theme, widget.status),
                       spreadRadius: theme.controlOutlineWidth,
                     ),
                   ]
@@ -274,8 +285,8 @@ class _AntDateRangePickerState extends State<AntDateRangePicker> {
             borderRadius: BorderRadius.circular(theme.borderRadius),
             border: Border.all(
               color: open && !widget.disabled
-                  ? theme.colorPrimary
-                  : theme.colorBorder,
+                  ? antFieldBorderColorOf(theme, widget.status, focused: true)
+                  : antFieldBorderColorOf(theme, widget.status),
               width: theme.s(1),
             ),
           ),
@@ -373,6 +384,8 @@ class AntDateTimeRangePicker extends AntDateRangePicker {
     super.showTime = true,
     super.timeFormat,
     super.autofocus,
+    super.status,
+    super.disabledDate,
     super.minDate,
     super.maxDate,
     super.labelBuilder,
@@ -397,6 +410,7 @@ class _DateRangeOverlay extends StatefulWidget {
     required this.showTime,
     required this.minDate,
     required this.maxDate,
+    required this.disabledDate,
     required this.onPanelChange,
     required this.onCommit,
     required this.onDismiss,
@@ -414,6 +428,7 @@ class _DateRangeOverlay extends StatefulWidget {
   final bool showTime;
   final DateTime? minDate;
   final DateTime? maxDate;
+  final bool Function(DateTime date)? disabledDate;
   final ValueChanged<DateTime> onPanelChange;
   final ValueChanged<AntDateRange> onCommit;
   final VoidCallback onDismiss;
@@ -447,11 +462,12 @@ class _DateRangeOverlayState extends State<_DateRangeOverlay> {
   bool get _hasCompleteRange => _start != null && _end != null;
 
   bool _isDisabled(DateTime date) {
+    final day = dateOnly(date);
     final min = widget.minDate;
     final max = widget.maxDate;
-    if (min != null && dateOnly(date).isBefore(dateOnly(min))) return true;
-    if (max != null && dateOnly(date).isAfter(dateOnly(max))) return true;
-    return false;
+    if (min != null && day.isBefore(dateOnly(min))) return true;
+    if (max != null && day.isAfter(dateOnly(max))) return true;
+    return widget.disabledDate?.call(day) ?? false;
   }
 
   void _handleDateTap(DateTime date) {

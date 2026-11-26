@@ -59,6 +59,8 @@ class AntSelect<T> extends StatefulWidget {
     this.loading = false,
     this.size = AntSelectSize.middle,
     this.autofocus = false,
+    this.status = AntInputStatus.normal,
+    this.maxTagCount,
   })  : assert(
           mode == AntSelectMode.single || value == null,
           'AntSelect 多选模式请用 values 传值（value 仅用于单选）',
@@ -135,6 +137,14 @@ class AntSelect<T> extends StatefulWidget {
 
   /// 尺寸。
   final AntSelectSize size;
+
+  /// 校验状态（error / warning 时边框与光环跟随主题校验色）。
+  final AntInputStatus status;
+
+  /// 多选模式下最多显示的标签数，超出部分折叠为 `+N` 计数标签。
+  ///
+  /// 为空时全部展开（既有行为）。
+  final int? maxTagCount;
 
   /// 是否自动聚焦。
   final bool autofocus;
@@ -309,25 +319,61 @@ class _AntSelectState<T> extends State<AntSelect<T>>
 
     final selectedLabels = <Widget>[];
     if (_isMultiple) {
-      for (final v in _currentValues) {
-        selectedLabels.add(
-          _Tag(
-            label: _renderLabel(
-              context,
-              v,
-              style: TextStyle(
-                fontSize: theme.fontSizeSM,
-                color:
-                    widget.disabled ? theme.colorTextDisabled : theme.colorText,
+      final maxTagCount = widget.maxTagCount;
+      final visibleCount = maxTagCount == null || maxTagCount < 0
+          ? _currentValues.length
+          : maxTagCount.clamp(0, _currentValues.length);
+      if (visibleCount < _currentValues.length) {
+        for (final v in _currentValues.take(visibleCount)) {
+          selectedLabels.add(
+            _Tag(
+              label: _renderLabel(
+                context,
+                v,
+                style: TextStyle(
+                  fontSize: theme.fontSizeSM,
+                  color: widget.disabled
+                      ? theme.colorTextDisabled
+                      : theme.colorText,
+                ),
               ),
+              theme: theme,
+              disabled: widget.disabled,
+              onClear: widget.allowClear && !widget.disabled
+                  ? () => _handleSelect(v, false)
+                  : null,
             ),
+          );
+        }
+        selectedLabels.add(
+          _OverflowTag(
+            count: _currentValues.length - visibleCount,
             theme: theme,
             disabled: widget.disabled,
-            onClear: widget.allowClear && !widget.disabled
-                ? () => _handleSelect(v, false)
-                : null,
           ),
         );
+      } else {
+        for (final v in _currentValues) {
+          selectedLabels.add(
+            _Tag(
+              label: _renderLabel(
+                context,
+                v,
+                style: TextStyle(
+                  fontSize: theme.fontSizeSM,
+                  color: widget.disabled
+                      ? theme.colorTextDisabled
+                      : theme.colorText,
+                ),
+              ),
+              theme: theme,
+              disabled: widget.disabled,
+              onClear: widget.allowClear && !widget.disabled
+                  ? () => _handleSelect(v, false)
+                  : null,
+            ),
+          );
+        }
       }
     } else {
       final v = _currentValue;
@@ -366,7 +412,7 @@ class _AntSelectState<T> extends State<AntSelect<T>>
         borderRadius: BorderRadius.circular(theme.borderRadius),
         // 打开态光环：antd 是 2px 无模糊的实心外扩环，不是把边框换成半透明色。
         boxShadow: open && !widget.disabled
-            ? antFieldFocusRingOf(theme, AntInputStatus.normal)
+            ? antFieldFocusRingOf(theme, widget.status)
             : null,
       ),
       // 边框画在前景层：不参与布局，打开态不再让内容位移 1px；
@@ -376,7 +422,7 @@ class _AntSelectState<T> extends State<AntSelect<T>>
         border: Border.all(
           color: antFieldBorderColorOf(
             theme,
-            AntInputStatus.normal,
+            widget.status,
             focused: open && !widget.disabled,
           ),
           width: theme.s(1),
@@ -447,6 +493,43 @@ class _AntSelectState<T> extends State<AntSelect<T>>
 }
 
 // ============================================================
+// _OverflowTag — 多选标签折叠计数（`+N`）
+// ============================================================
+
+class _OverflowTag extends StatelessWidget {
+  const _OverflowTag({
+    required this.count,
+    required this.theme,
+    required this.disabled,
+  });
+
+  final int count;
+  final AntThemeData theme;
+  final bool disabled;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: theme.s(6),
+        vertical: theme.s(2),
+      ),
+      decoration: BoxDecoration(
+        color: theme.colorFillQuaternary,
+        borderRadius: BorderRadius.circular(theme.borderRadiusSM),
+      ),
+      child: Text(
+        '+$count',
+        style: TextStyle(
+          fontSize: theme.fontSizeSM,
+          color: disabled ? theme.colorTextDisabled : theme.colorTextSecondary,
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
 // _Tag — 多选标签
 // ============================================================
 
@@ -467,7 +550,8 @@ class _Tag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: theme.s(6), vertical: theme.s(2)),
+      padding:
+          EdgeInsets.symmetric(horizontal: theme.s(6), vertical: theme.s(2)),
       decoration: BoxDecoration(
         color: theme.colorFillSecondary,
         borderRadius: BorderRadius.circular(theme.borderRadiusSM),
@@ -720,7 +804,8 @@ class _OptionItem<T> extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: theme.s(12), vertical: theme.s(6)),
+        padding:
+            EdgeInsets.symmetric(horizontal: theme.s(12), vertical: theme.s(6)),
         child: Row(
           children: [
             if (isMultiple)

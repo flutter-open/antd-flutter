@@ -1,6 +1,6 @@
 name: antd_picker
 description: Ant Design picker, cascader, date and time pickers for Flutter, with wheel columns and antd-mobile v5 interaction.
-version: 1.1.0
+version: 1.1.1
 homepage: https://flutter-open.github.io/antd-flutter/
 repository: https://github.com/flutter-open/antd-flutter
 issue_tracker: https://github.com/flutter-open/antd-flutter/issues
@@ -23,7 +23,7 @@ dependencies:
   antd_icons_flutter: ^1.0.0
   # 滚轮引擎（wheel_picker_engine / wheel_column_model）与
   # AntPickerView（ui display，通用滚轮视图，留 ui 不迁）依赖
-  antd_flutter_ui: ^1.0.5
+  antd_flutter_ui: ^1.0.6
   material_ui: ^1.11.0
   cupertino_ui: any
 dev_dependencies:

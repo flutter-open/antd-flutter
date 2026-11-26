@@ -49,6 +49,7 @@ class AntTimePicker extends StatefulWidget {
     this.format,
     this.locale,
     this.autofocus = false,
+    this.status = AntInputStatus.normal,
     this.labelBuilder,
   });
 
@@ -90,6 +91,9 @@ class AntTimePicker extends StatefulWidget {
 
   /// 是否自动聚焦。
   final bool autofocus;
+
+  /// 校验状态（error / warning 时边框与光环跟随主题校验色）。
+  final AntInputStatus status;
 
   /// 触发器时间自定义渲染；为空时按 [format] 格式化显示。
   final Widget Function(BuildContext context, TimeOfDay time)? labelBuilder;
@@ -212,7 +216,7 @@ class _AntTimePickerState extends State<AntTimePicker> {
             boxShadow: open && !widget.disabled
                 ? [
                     BoxShadow(
-                      color: theme.controlOutline,
+                      color: antFieldFocusOutlineOf(theme, widget.status),
                       spreadRadius: theme.controlOutlineWidth,
                     ),
                   ]
@@ -222,8 +226,8 @@ class _AntTimePickerState extends State<AntTimePicker> {
             borderRadius: BorderRadius.circular(theme.borderRadius),
             border: Border.all(
               color: open && !widget.disabled
-                  ? theme.colorPrimary
-                  : theme.colorBorder,
+                  ? antFieldBorderColorOf(theme, widget.status, focused: true)
+                  : antFieldBorderColorOf(theme, widget.status),
               width: theme.s(1),
             ),
           ),

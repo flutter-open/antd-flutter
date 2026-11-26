@@ -23,6 +23,7 @@ class AntDateCellData {
     this.isRangeStart = false,
     this.isRangeEnd = false,
     this.isInRange = false,
+    this.isDisabled = false,
   });
 
   /// 该格对应日期（当天 00:00）。
@@ -43,6 +44,9 @@ class AntDateCellData {
   /// 是否落在范围中间（不含起终点）。
   final bool isInRange;
 
+  /// 是否不可选（由 `disabledDate` 或 `minDate` / `maxDate` 判定）。
+  final bool isDisabled;
+
   /// 是否属于范围（含起终点）。
   bool get isInAnyRange => isRangeStart || isRangeEnd || isInRange;
 }
@@ -61,6 +65,7 @@ class AntDateMonthPanel extends StatelessWidget {
     this.onHover,
     this.showToday = true,
     this.onToday,
+    this.disabledDate,
   });
 
   /// 主题数据。
@@ -90,6 +95,12 @@ class AntDateMonthPanel extends StatelessWidget {
   /// 「今天」按钮回调。
   final VoidCallback? onToday;
 
+  /// 日期是否不可选（由调用方合并 `disabledDate` 与 `minDate` / `maxDate`）。
+  ///
+  /// 面板只负责把结果透传到 [AntDateCellData.isDisabled]，
+  /// 是否忽略点击由 [cellBuilder] 决定。
+  final bool Function(DateTime date)? disabledDate;
+
   @override
   Widget build(BuildContext context) {
     final year = panelMonth.year;
@@ -111,12 +122,14 @@ class AntDateMonthPanel extends StatelessWidget {
         cells.add(const SizedBox.shrink());
         continue;
       }
+      final isDisabled = disabledDate?.call(date) ?? false;
       final data = AntDateCellData(
         date: date,
         isToday: isSameDay(date, today),
+        isDisabled: isDisabled,
       );
       final cell = cellBuilder(context, data);
-      if (onHover == null) {
+      if (onHover == null || isDisabled) {
         cells.add(cell);
       } else {
         cells.add(

@@ -31,7 +31,6 @@ import 'package:antd_form/src/form/ant_form_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
-
 // ============================================================
 // AntFormController
 // ============================================================
@@ -56,7 +55,8 @@ class AntFormController extends ChangeNotifier {
   }
 
   /// 注册字段（由 AntFormItem.didChangeDependencies 调用）
-  void _registerField(String name, List<AntFormFieldRule> rules, dynamic initialValue) {
+  void _registerField(
+      String name, List<AntFormFieldRule> rules, dynamic initialValue) {
     _rules[name] = rules;
     if (!_values.containsKey(name)) {
       _values[name] = initialValue ?? _initialValues[name];
@@ -156,6 +156,9 @@ class _FormScope extends InheritedWidget {
     required this.labelWidth,
     required this.disabled,
     required this.submit,
+    this.itemMarginBottom,
+    this.hintColor,
+    this.labelColor,
     required super.child,
   });
 
@@ -164,6 +167,15 @@ class _FormScope extends InheritedWidget {
   final double? labelWidth;
   final bool disabled;
   final VoidCallback submit;
+
+  /// 表单项底部间距（null 表示跟随主题令牌）
+  final double? itemMarginBottom;
+
+  /// 帮助 / 额外说明文案颜色（null 表示取 [AntThemeData.colorTextDescription]）
+  final Color? hintColor;
+
+  /// 标签文案颜色（null 表示取 [AntThemeData.colorText]）
+  final Color? labelColor;
 
   static _FormScope? of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<_FormScope>();
@@ -174,7 +186,10 @@ class _FormScope extends InheritedWidget {
     return controller != oldWidget.controller ||
         layout != oldWidget.layout ||
         labelWidth != oldWidget.labelWidth ||
-        disabled != oldWidget.disabled;
+        disabled != oldWidget.disabled ||
+        itemMarginBottom != oldWidget.itemMarginBottom ||
+        hintColor != oldWidget.hintColor ||
+        labelColor != oldWidget.labelColor;
   }
 }
 
@@ -195,6 +210,9 @@ class AntForm extends StatefulWidget {
     this.layout = AntFormLayout.vertical,
     this.labelWidth,
     this.disabled = false,
+    this.itemMarginBottom,
+    this.hintColor,
+    this.labelColor,
     required this.children,
   });
 
@@ -218,6 +236,23 @@ class AntForm extends StatefulWidget {
 
   /// 是否禁用全部表单项
   final bool disabled;
+
+  /// 表单项底部间距（纵向布局默认 16，水平布局默认 24）。
+  ///
+  /// 未显式指定时，带 [AntFormItem.help] / [AntFormItem.extra] 或校验错误的
+  /// 表单项会自动去掉底部间距（与 antd web `.ant-form-item-with-help` 一致），
+  /// 避免帮助文案下方再多出一段空白。
+  final double? itemMarginBottom;
+
+  /// 帮助 / 额外说明文案颜色。
+  ///
+  /// 未指定时取主题的 [AntThemeData.colorTextDescription]。
+  final Color? hintColor;
+
+  /// 标签文案颜色。
+  ///
+  /// 未指定时取主题的 [AntThemeData.colorText]。
+  final Color? labelColor;
 
   /// 表单子项
   final List<Widget> children;
@@ -273,6 +308,9 @@ class _AntFormState extends State<AntForm> {
       labelWidth: widget.labelWidth,
       disabled: widget.disabled,
       submit: _submit,
+      itemMarginBottom: widget.itemMarginBottom,
+      hintColor: widget.hintColor,
+      labelColor: widget.labelColor,
       child: widget.layout == AntFormLayout.inline
           ? Wrap(
               crossAxisAlignment: WrapCrossAlignment.center,
@@ -338,6 +376,9 @@ class AntFormItem<T> extends StatefulWidget {
     this.extra,
     this.initialValue,
     this.validateTrigger = AntFormValidateTrigger.onChange,
+    this.marginBottom,
+    this.hintColor,
+    this.labelColor,
     required this.builder,
   });
 
@@ -364,6 +405,15 @@ class AntFormItem<T> extends StatefulWidget {
 
   /// 校验触发时机
   final AntFormValidateTrigger validateTrigger;
+
+  /// 该表单项的底部间距，优先于 [AntForm.itemMarginBottom]。
+  final double? marginBottom;
+
+  /// 该表单项帮助 / 额外说明文案颜色，优先于 [AntForm.hintColor]。
+  final Color? hintColor;
+
+  /// 该表单项标签文案颜色，优先于 [AntForm.labelColor]。
+  final Color? labelColor;
 
   /// 表单控件构建器
   final Widget Function(AntFormField<T> field) builder;
@@ -415,8 +465,7 @@ class _AntFormItemState<T> extends State<AntFormItem<T>> {
 
   bool get _isRequired {
     if (widget.required == true) return true;
-    return (widget.rules ?? const <AntFormFieldRule>[])
-        .any((r) => r.required);
+    return (widget.rules ?? const <AntFormFieldRule>[]).any((r) => r.required);
   }
 
   T? get _currentValue {
@@ -450,7 +499,6 @@ class _AntFormItemState<T> extends State<AntFormItem<T>> {
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
     final scope = _scope;
-    final disabled = scope?.disabled ?? false;
     final layout = scope?.layout ?? AntFormLayout.vertical;
 
     return ListenableBuilder(
@@ -465,8 +513,6 @@ class _AntFormItemState<T> extends State<AntFormItem<T>> {
         return _buildLayout(
           t: t,
           layout: layout,
-          labelWidth: scope?.labelWidth,
-          disabled: disabled,
           control: control,
           errorText: _currentError,
         );
@@ -477,83 +523,71 @@ class _AntFormItemState<T> extends State<AntFormItem<T>> {
   Widget _buildLayout({
     required AntThemeData t,
     required AntFormLayout layout,
-    required double? labelWidth,
-    required bool disabled,
     required Widget control,
     required String? errorText,
   }) {
-    final labelWidget = _buildLabel(t);
-    final errorWidget = _buildError(t, errorText);
-    final helpWidget = widget.help != null
-        ? Padding(
-            padding: EdgeInsets.only(top: t.s(4)),
-            child: Text(
-              widget.help!,
-              style: TextStyle(
-                fontSize: t.fontSizeSM,
-                color: t.colorTextTertiary,
-              ),
-            ),
-          )
-        : null;
-    final extraWidget = widget.extra != null
-        ? Padding(
-            padding: EdgeInsets.only(top: t.s(4)),
-            child: Text(
-              widget.extra!,
-              style: TextStyle(
-                fontSize: t.fontSizeSM,
-                color: t.colorTextTertiary,
-              ),
-            ),
-          )
-        : null;
+    final scope = _scope;
+    final labelColor = widget.labelColor ?? scope?.labelColor ?? t.colorText;
+    final hintColor =
+        widget.hintColor ?? scope?.hintColor ?? t.colorTextDescription;
+    final labelWidget = _buildLabel(t, labelColor);
 
-    final bottomColumn = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (errorWidget != null) errorWidget,
-        if (helpWidget != null) helpWidget,
-        if (extraWidget != null) extraWidget,
-      ],
-    );
+    // 帮助 / 额外说明 / 校验错误
+    final explain = <Widget>[
+      if (errorText != null) _buildError(t, errorText),
+      if (widget.help != null) _buildHint(t, widget.help!, hintColor),
+      if (widget.extra != null) _buildHint(t, widget.extra!, hintColor),
+    ];
+    final hasExplain = explain.isNotEmpty;
+
+    // 底部间距：优先用显式配置（item > form），否则有说明文案时归零，
+    // 否则取主题的 margin 令牌。antd web 的 `.ant-form-item-with-help`
+    // 同样是「说明文案占据间距」，避免文案下方再多出一段空白。
+    final double bottomMargin;
+    if (widget.marginBottom != null) {
+      bottomMargin = widget.marginBottom!;
+    } else if (scope?.itemMarginBottom != null) {
+      bottomMargin = scope!.itemMarginBottom!;
+    } else {
+      bottomMargin = hasExplain ? 0 : t.margin;
+    }
 
     if (layout == AntFormLayout.horizontal && labelWidget != null) {
+      final resolvedLabelWidth = scope?.labelWidth;
       return Padding(
-        padding: EdgeInsets.only(bottom: (errorText != null || widget.help != null) ? t.s(8) : t.s(16)),
+        padding: EdgeInsets.only(bottom: bottomMargin),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              width: labelWidth ?? t.s(100),
+              width: resolvedLabelWidth ?? t.s(100),
               child: labelWidget,
             ),
-            Expanded(child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                control,
-                if (bottomColumn.children.isNotEmpty) bottomColumn,
-              ],
-            ),),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [control, ...explain],
+              ),
+            ),
           ],
         ),
       );
     }
 
     if (layout == AntFormLayout.inline) {
+      final bool disabled = scope?.disabled ?? false;
       return Padding(
-        padding: EdgeInsets.only(right: t.s(16), bottom: t.s(8)),
+        padding: EdgeInsets.only(right: t.margin, bottom: t.marginXS),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (labelWidget != null) ...[
               labelWidget,
-              SizedBox(width: t.s(8)),
+              SizedBox(width: t.marginXS),
             ],
-            control,
+            Opacity(opacity: disabled ? 0.5 : 1, child: control),
           ],
         ),
       );
@@ -561,23 +595,34 @@ class _AntFormItemState<T> extends State<AntFormItem<T>> {
 
     // vertical（默认）
     return Padding(
-      padding: EdgeInsets.only(bottom: t.s(16)),
+      padding: EdgeInsets.only(bottom: bottomMargin),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           if (labelWidget != null) ...[
             labelWidget,
-            SizedBox(height: t.s(8)),
+            SizedBox(height: t.marginXS),
           ],
           control,
-          if (bottomColumn.children.isNotEmpty) bottomColumn,
+          ...explain,
         ],
       ),
     );
   }
 
-  Widget? _buildLabel(AntThemeData t) {
+  /// 帮助 / 额外说明文案（颜色取 hintColor，默认 colorTextDescription）
+  Widget _buildHint(AntThemeData t, String text, Color color) {
+    return Padding(
+      padding: EdgeInsets.only(top: t.s(4)),
+      child: Text(
+        text,
+        style: TextStyle(fontSize: t.fontSizeSM, color: color),
+      ),
+    );
+  }
+
+  Widget? _buildLabel(AntThemeData t, Color labelColor) {
     if (widget.label == null) return null;
     return Padding(
       padding: EdgeInsets.symmetric(vertical: t.s(2)),
@@ -599,7 +644,7 @@ class _AntFormItemState<T> extends State<AntFormItem<T>> {
             widget.label!,
             style: TextStyle(
               fontSize: t.fontSize,
-              color: t.colorText,
+              color: labelColor,
             ),
           ),
         ],
@@ -607,8 +652,7 @@ class _AntFormItemState<T> extends State<AntFormItem<T>> {
     );
   }
 
-  Widget? _buildError(AntThemeData t, String? errorText) {
-    if (errorText == null) return null;
+  Widget _buildError(AntThemeData t, String errorText) {
     return Padding(
       padding: EdgeInsets.only(top: t.s(4)),
       child: Text(

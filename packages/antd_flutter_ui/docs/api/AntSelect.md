@@ -15,7 +15,7 @@ class AntSelect
 
 ## 构造函数
 
-### `AntSelect({super.key, this.mode = AntSelectMode.single, this.value, this.defaultValue, this.values, this.defaultValues = const [], this.options = const [], this.labelOf, this.labelBuilder, this.itemBuilder, this.valueExtractor, this.disabledOf, this.searchTextOf, this.onChange, this.onChangeMultiple, this.showSearch = false, this.allowClear = false, this.placeholder, this.disabled = false, this.loading = false, this.size = AntSelectSize.middle, this.autofocus = false})`
+### `AntSelect({super.key, this.mode = AntSelectMode.single, this.value, this.defaultValue, this.values, this.defaultValues = const [], this.options = const [], this.labelOf, this.labelBuilder, this.itemBuilder, this.valueExtractor, this.disabledOf, this.searchTextOf, this.onChange, this.onChangeMultiple, this.showSearch = false, this.allowClear = false, this.placeholder, this.disabled = false, this.loading = false, this.size = AntSelectSize.middle, this.autofocus = false, this.status = AntInputStatus.normal, this.maxTagCount})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
@@ -40,6 +40,8 @@ class AntSelect
 | `loading` | `bool` | = false | — |
 | `size` | `AntSelectSize` | = AntSelectSize.middle | — |
 | `autofocus` | `bool` | = false | — |
+| `status` | `AntInputStatus` | = AntInputStatus.normal | — |
+| `maxTagCount` | `int?` | 可选 | — |
 
 ## 字段
 
@@ -55,6 +57,7 @@ class AntSelect
 | `labelBuilder` | `Widget Function(BuildContext context, T item)?` | 选项的自定义渲染，用于下拉项、多选标签与单选已选值 |
 | `labelOf` | `String Function(T item)?` | 选项的字符串 label 简写，用于标题文本与 showSearch 搜索匹配 |
 | `loading` | `bool` | 是否加载中 |
+| `maxTagCount` | `int?` | 多选模式下最多显示的标签数，超出部分折叠为 +N 计数标签 |
 | `mode` | `AntSelectMode` | 选择模式 |
 | `onChange` | `ValueChanged<T?>?` | 单选选中变化回调（清除时为 null） |
 | `onChangeMultiple` | `ValueChanged<List<T>>?` | 多选选中变化回调 |
@@ -63,6 +66,7 @@ class AntSelect
 | `searchTextOf` | `String Function(T item)?` | 搜索匹配文本，缺省为 labelOf 的结果（再缺省为 item.toString()） |
 | `showSearch` | `bool` | 是否可搜索 |
 | `size` | `AntSelectSize` | 尺寸 |
+| `status` | `AntInputStatus` | 校验状态（error / warning 时边框与光环跟随主题校验色） |
 | `value` | `T?` | 受控选中值（单选） |
 | `valueExtractor` | `Object Function(T item)?` | 选中值的身份提取（默认选项自身） |
 | `values` | `List<T>?` | 受控选中值（多选） |

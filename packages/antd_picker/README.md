@@ -218,6 +218,21 @@ class _DateTimeFormState extends State<DateTimeForm> {
 
 Both fields open their own sheet and report `null` when cleared (`allowClear: true` enables the clear affordance). `minuteStep` / `hourStep` thin out the wheel options for coarse scheduling.
 
+Validation state and selectable bounds can be handed to the field directly, without wrapping it:
+
+```dart
+AntDatePicker(
+  value: _date,
+  status: AntInputStatus.error,        // error / warning colors the border and ring
+  minDate: DateTime(2025, 1, 1),       // inclusive lower bound
+  maxDate: DateTime(2025, 12, 31),     // inclusive upper bound
+  disabledDate: (date) => date.weekday != DateTime.monday, // custom rule
+  onChange: (date) => setState(() => _date = date),
+);
+```
+
+`status` is available on `AntDatePicker`, `AntTimePicker` and `AntDateRangePicker`; dates matched by `disabledDate` render grey and cannot be tapped, and the rule combines with `minDate` / `maxDate`.
+
 ### 4. Date ranges and localization
 
 ```dart
@@ -236,6 +251,7 @@ AntDateTimeRangePicker(
 
 - The first click sets the start, the second click sets the end; an end earlier than the start is normalized automatically. With `showTime` the range is committed only after the confirm button, and the time columns appear inside the same panel.
 - `minDate` / `maxDate` disable out-of-range days, and `allowClear` resets the range to `null`.
+- `disabledDate` disables individual days (weekdays only, for example) and `status` makes the trigger follow form validation state.
 - Pass `locale: AntPickerLocale.zh` / `.en` / `.ja` (15 built-in presets) to pin a language, or wrap the tree once in `AntPickerLocaleProvider`; without either, the pickers follow the app's `Localizations` locale and fall back to Chinese.
 - `format` / `timeFormat` accept antd patterns such as `yyyy-MM-dd`, `yyyy年M月d日`, `HH:mm` or `hh:mm a`, and override the locale defaults.
 

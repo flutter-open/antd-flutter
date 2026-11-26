@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.1
+
+- `AntDatePicker` / `AntTimePicker` / `AntDateRangePicker` (and `AntDateTimeRangePicker`) gain `status`, so form validation state colors the trigger border and ring.
+- `AntDatePicker` gains `minDate` / `maxDate` / `disabledDate`: out-of-range and rule-matched days render grey and cannot be selected, matching the range pickers.
+- `AntDateRangePicker` gains `disabledDate` for per-day rules.
+- `AntDateMonthPanel` passes an `isDisabled` flag to cell builders and skips disabled days when previewing a range.
+- Depend on `antd_flutter_ui ^1.0.6` for the shared field border/ring helpers.
+
 ## 1.1.0
 
 - Add `AntDateRangePicker`: pick a start and an end date in one panel, with `allowClear`, `minDate` / `maxDate`, `weekStartsOnMonday`, `showToday` and automatic start/end ordering.

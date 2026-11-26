@@ -21,7 +21,7 @@ AntDateTimeRangePicker(
 
 ## 构造函数
 
-### `AntDateTimeRangePicker({super.key, super.value, super.defaultValue, super.onChange, super.allowClear, super.placeholderStart, super.placeholderEnd, super.separator, super.disabled, super.size, super.format, super.locale, super.weekStartsOnMonday, super.showToday, super.showTime = true, super.timeFormat, super.autofocus, super.minDate, super.maxDate, super.labelBuilder})`
+### `AntDateTimeRangePicker({super.key, super.value, super.defaultValue, super.onChange, super.allowClear, super.placeholderStart, super.placeholderEnd, super.separator, super.disabled, super.size, super.format, super.locale, super.weekStartsOnMonday, super.showToday, super.showTime = true, super.timeFormat, super.autofocus, super.status, super.disabledDate, super.minDate, super.maxDate, super.labelBuilder})`
 
 创建日期时间范围选择框。
 

@@ -218,6 +218,21 @@ class _DateTimeFormState extends State<DateTimeForm> {
 
 两个字段各自打开弹层，清除时回报 `null`（`allowClear: true` 启用清除入口）。`minuteStep` / `hourStep` 可稀疏化滚轮选项，适合粗粒度排期。
 
+表单校验态与可选范围都能直接下发到字段，不必自己包一层：
+
+```dart
+AntDatePicker(
+  value: _date,
+  status: AntInputStatus.error,        // error / warning 时边框与光环取校验色
+  minDate: DateTime(2025, 1, 1),       // 可选下限（含）
+  maxDate: DateTime(2025, 12, 31),     // 可选上限（含）
+  disabledDate: (date) => date.weekday != DateTime.monday, // 自定义禁用规则
+  onChange: (date) => setState(() => _date = date),
+);
+```
+
+`status` 在 `AntDatePicker` / `AntTimePicker` / `AntDateRangePicker` 上都可用；`disabledDate` 命中的日期置灰且不可点击，与 `minDate` / `maxDate` 同时生效。
+
 ### 4. 日期范围与国际化
 
 ```dart
@@ -236,6 +251,7 @@ AntDateTimeRangePicker(
 
 - 第一次点击设起点、第二次点击设终点；终点早于起点会自动归正。开启 `showTime` 时需点确定才提交，时分列与月历在同一面板内。
 - `minDate` / `maxDate` 禁用范围外日期，`allowClear` 清除后回报 `null`。
+- `disabledDate` 逐日禁用（如只允许工作日），`status` 让触发器跟随表单校验态着色。
 - 传 `locale: AntPickerLocale.zh` / `.en` / `.ja`（内建 15 种语言预设）固定语言，或在外层包一次 `AntPickerLocaleProvider`；都不指定时跟随 App 的 `Localizations` 语言并回退中文。
 - `format` / `timeFormat` 支持 antd 模板（`yyyy-MM-dd`、`yyyy年M月d日`、`HH:mm`、`hh:mm a`），优先于 locale 默认格式。
 

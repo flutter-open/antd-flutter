@@ -42,6 +42,10 @@ class AntDatePicker extends StatefulWidget {
     this.weekStartsOnMonday = false,
     this.showToday = true,
     this.autofocus = false,
+    this.status = AntInputStatus.normal,
+    this.disabledDate,
+    this.minDate,
+    this.maxDate,
     this.labelBuilder,
   });
 
@@ -82,6 +86,20 @@ class AntDatePicker extends StatefulWidget {
 
   /// 是否自动聚焦。
   final bool autofocus;
+
+  /// 校验状态（error / warning 时边框与光环跟随主题校验色）。
+  final AntInputStatus status;
+
+  /// 日期是否不可选；返回 true 的日期不可点击（灰色显示）。
+  ///
+  /// 与 [minDate] / [maxDate] 同时生效。
+  final bool Function(DateTime date)? disabledDate;
+
+  /// 最小可选日期（含当天）。
+  final DateTime? minDate;
+
+  /// 最大可选日期（含当天）。
+  final DateTime? maxDate;
 
   /// 触发器日期自定义渲染；为空时按 [format] 格式化显示。
   final Widget Function(BuildContext context, DateTime date)? labelBuilder;
@@ -148,7 +166,9 @@ class _AntDatePickerState extends State<AntDatePicker> {
           setState(() => _panelMonth = month);
           _overlayEntry?.markNeedsBuild();
         },
+        disabledDate: _isDisabled,
         onSelect: (date) {
+          if (_isDisabled(date)) return;
           _internalValue = date;
           widget.onChange?.call(date);
           _setOpen(false);
@@ -168,6 +188,16 @@ class _AntDatePickerState extends State<AntDatePicker> {
     _internalValue = null;
     widget.onChange?.call(null);
     if (mounted) setState(() {});
+  }
+
+  /// 日期是否不可选（合并 [disabledDate] 与 [minDate] / [maxDate]）。
+  bool _isDisabled(DateTime date) {
+    final day = dateOnly(date);
+    final min = widget.minDate;
+    final max = widget.maxDate;
+    if (min != null && day.isBefore(dateOnly(min))) return true;
+    if (max != null && day.isAfter(dateOnly(max))) return true;
+    return widget.disabledDate?.call(day) ?? false;
   }
 
   /// 按 [AntDatePicker.format]（为空时取 locale 默认格式）格式化日期。
@@ -214,12 +244,7 @@ class _AntDatePickerState extends State<AntDatePicker> {
                 : theme.colorBgContainer,
             borderRadius: BorderRadius.circular(theme.borderRadius),
             boxShadow: open && !widget.disabled
-                ? [
-                    BoxShadow(
-                      color: theme.controlOutline,
-                      spreadRadius: theme.controlOutlineWidth,
-                    ),
-                  ]
+                ? antFieldFocusRingOf(theme, widget.status)
                 : null,
           ),
           foregroundDecoration: BoxDecoration(
@@ -228,9 +253,13 @@ class _AntDatePickerState extends State<AntDatePicker> {
               // 打开态主色边框（与 Input 聚焦语义一致），宽度恒定 1
               // ——此前用 controlOutline 当边框色 + 宽度 1→2 切换，
               // 既颜色发灰又引起加粗抖动
-              color: open && !widget.disabled
-                  ? theme.colorPrimary
-                  : theme.colorBorder,
+              color: widget.disabled
+                  ? theme.colorBorderDisabled
+                  : antFieldBorderColorOf(
+                      theme,
+                      widget.status,
+                      focused: open,
+                    ),
               width: theme.s(1),
             ),
           ),
@@ -303,6 +332,7 @@ class _DatePickerOverlay extends StatelessWidget {
     required this.onPanelChange,
     required this.onSelect,
     required this.onDismiss,
+    required this.disabledDate,
   });
 
   final GlobalKey fieldKey;
@@ -315,6 +345,7 @@ class _DatePickerOverlay extends StatelessWidget {
   final ValueChanged<DateTime> onPanelChange;
   final ValueChanged<DateTime> onSelect;
   final VoidCallback onDismiss;
+  final bool Function(DateTime date) disabledDate;
 
   @override
   Widget build(BuildContext context) {
@@ -336,11 +367,17 @@ class _DatePickerOverlay extends StatelessWidget {
           weekStartsOnMonday: weekStartsOnMonday,
           showToday: showToday,
           onPanelChange: onPanelChange,
-          onToday: () => onSelect(dateOnly(DateTime.now())),
+          disabledDate: disabledDate,
+          onToday: () {
+            final today = dateOnly(DateTime.now());
+            if (disabledDate(today)) return;
+            onSelect(today);
+          },
           cellBuilder: (context, data) => _DayCell(
             data: AntDateCellData(
               date: data.date,
               isToday: data.isToday,
+              isDisabled: disabledDate(data.date),
               isSelected:
                   selectedDate != null && isSameDay(selectedDate!, data.date),
             ),
@@ -372,11 +409,13 @@ class _DayCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = theme;
     final selected = data.isSelected;
+    final disabled = data.isDisabled;
     return Semantics(
       button: true,
       selected: selected,
+      enabled: !disabled,
       child: GestureDetector(
-        onTap: onTap,
+        onTap: disabled ? null : onTap,
         child: Container(
           decoration: BoxDecoration(
             color: selected ? t.colorPrimary : Colors.transparent,
@@ -390,11 +429,13 @@ class _DayCell extends StatelessWidget {
               '${data.date.day}',
               style: TextStyle(
                 fontSize: t.fontSizeSM,
-                color: selected
-                    ? Colors.white
-                    : data.isToday
-                        ? t.colorPrimary
-                        : t.colorText,
+                color: disabled
+                    ? t.colorTextDisabled
+                    : selected
+                        ? Colors.white
+                        : data.isToday
+                            ? t.colorPrimary
+                            : t.colorText,
               ),
             ),
           ),

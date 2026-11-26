@@ -33,6 +33,16 @@ class SelectPage extends StatelessWidget {
             description: 'options: List<City> + labelOf / valueExtractor',
           ),
           _CustomModelDemo(),
+          _Section(
+            title: '标签折叠',
+            description: 'maxTagCount: 2 — 超出部分显示 +N',
+          ),
+          _MaxTagCountDemo(),
+          _Section(
+            title: '校验状态',
+            description: 'status: error / warning',
+          ),
+          _StatusDemo(),
         ],
       ),
     );
@@ -288,6 +298,53 @@ class _CustomModelDemoState extends State<_CustomModelDemo> {
             labelOf: (city) => city.name,
             valueExtractor: (city) => city.id,
             onChangeMultiple: (cities) => setState(() => _cities2 = cities),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MaxTagCountDemo extends StatelessWidget {
+  const _MaxTagCountDemo();
+  @override
+  Widget build(BuildContext context) {
+    return _Row(
+      children: [
+        SizedBox(
+          width: 320,
+          child: AntSelect<String>(
+            mode: AntSelectMode.multiple,
+            options: const ['杭州', '宁波', '苏州', '南京'],
+            defaultValues: const ['杭州', '宁波', '苏州', '南京'],
+            maxTagCount: 2,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatusDemo extends StatelessWidget {
+  const _StatusDemo();
+  @override
+  Widget build(BuildContext context) {
+    return _Row(
+      children: [
+        SizedBox(
+          width: 200,
+          child: AntSelect<String>(
+            options: const ['杭州', '宁波'],
+            placeholder: 'error 状态',
+            status: AntInputStatus.error,
+          ),
+        ),
+        SizedBox(
+          width: 200,
+          child: AntSelect<String>(
+            options: const ['杭州', '宁波'],
+            placeholder: 'warning 状态',
+            status: AntInputStatus.warning,
           ),
         ),
       ],

@@ -113,6 +113,20 @@ AntInput(
 );
 ```
 
+### 选择器
+
+`AntSelect` 支持单选 / 多选，多选超出 `maxTagCount` 的标签折叠为 `+N` 计数；`status` 让边框与光环跟随表单校验态。
+
+```dart
+AntSelect<String>(
+  mode: AntSelectMode.multiple,
+  options: const ['Hangzhou', 'Ningbo', 'Suzhou', 'Nanjing'],
+  defaultValues: const ['Hangzhou', 'Ningbo', 'Suzhou', 'Nanjing'],
+  maxTagCount: 2,                 // 只显示 2 个标签，其余显示 +2
+  status: AntInputStatus.error,   // 校验失败时的红框 + 红环
+);
+```
+
 ### 主题
 
 `AntTheme` 接收 `AntThemeData` 并派生 Flutter 主题。通过 `AntTheme.of(context)` 读取当前主题，用 `theme.s(...)` 换算设计值。

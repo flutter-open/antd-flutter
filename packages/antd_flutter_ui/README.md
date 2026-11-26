@@ -113,6 +113,20 @@ AntInput(
 );
 ```
 
+### Select
+
+`AntSelect` supports single and multiple modes; in multiple mode tags beyond `maxTagCount` collapse into a `+N` counter, and `status` forwards form validation state to the border and ring.
+
+```dart
+AntSelect<String>(
+  mode: AntSelectMode.multiple,
+  options: const ['Hangzhou', 'Ningbo', 'Suzhou', 'Nanjing'],
+  defaultValues: const ['Hangzhou', 'Ningbo', 'Suzhou', 'Nanjing'],
+  maxTagCount: 2,                 // two tags, the rest collapse into +2
+  status: AntInputStatus.error,   // red border + red ring on validation errors
+);
+```
+
 ### Theme
 
 `AntTheme` takes an `AntThemeData` and derives the Flutter theme from it. Read the active theme with `AntTheme.of(context)` and scale design values with `theme.s(...)`.

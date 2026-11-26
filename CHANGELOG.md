@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.4
+
+- Bump `antd_flutter_ui` to `^1.0.6`: `AntSelect` gains `status` and `maxTagCount` (tags beyond the limit collapse into `+N`).
+- Bump `antd_picker` to `^1.1.1`: the date/time picker family gains `status`, `AntDatePicker` gains `minDate` / `maxDate` / `disabledDate`, and `AntDateRangePicker` gains `disabledDate`.
+- Bump `antd_form` to `^1.0.2`: form item bottom spacing and hint/label colors are now configurable, removing the extra bottom gap (issue #8).
+
 ## 1.0.3
 
 - Re-export `AntDateRangePicker`, `AntDateTimeRangePicker`, `AntPickerLocale` and `AntPickerLocaleProvider` from `antd_picker`.

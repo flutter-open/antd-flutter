@@ -14,7 +14,7 @@ class AntTimePicker
 
 ## 构造函数
 
-### `AntTimePicker({super.key, this.value, this.defaultValue, this.onChange, this.allowClear = false, this.placeholder, this.disabled = false, this.size = AntTimePickerSize.middle, this.hourStep = 1, this.minuteStep = 1, this.secondStep = 1, this.format, this.locale, this.autofocus = false, this.labelBuilder})`
+### `AntTimePicker({super.key, this.value, this.defaultValue, this.onChange, this.allowClear = false, this.placeholder, this.disabled = false, this.size = AntTimePickerSize.middle, this.hourStep = 1, this.minuteStep = 1, this.secondStep = 1, this.format, this.locale, this.autofocus = false, this.status = AntInputStatus.normal, this.labelBuilder})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
@@ -31,6 +31,7 @@ class AntTimePicker
 | `format` | `String?` | 可选 | — |
 | `locale` | `AntPickerLocale?` | 可选 | — |
 | `autofocus` | `bool` | = false | — |
+| `status` | `AntInputStatus` | = AntInputStatus.normal | — |
 | `labelBuilder` | `Widget Function(BuildContext context, TimeOfDay time)?` | 可选 | — |
 
 ## 字段
@@ -50,6 +51,7 @@ class AntTimePicker
 | `placeholder` | `String?` | 占位文本（为空时取 locale 的时间占位文案） |
 | `secondStep` | `int` | 秒步长 |
 | `size` | `AntTimePickerSize` | 尺寸 |
+| `status` | `AntInputStatus` | 校验状态（error / warning 时边框与光环跟随主题校验色） |
 | `value` | `TimeOfDay?` | 受控时间值 |
 
 ## 方法

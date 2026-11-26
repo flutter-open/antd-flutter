@@ -14,7 +14,7 @@ class AntDateRangePicker
 
 ## 构造函数
 
-### `AntDateRangePicker({super.key, this.value, this.defaultValue, this.onChange, this.allowClear = false, this.placeholderStart, this.placeholderEnd, this.separator, this.disabled = false, this.size = AntDatePickerSize.middle, this.format, this.locale, this.weekStartsOnMonday = false, this.showToday = true, this.showTime = false, this.timeFormat, this.autofocus = false, this.minDate, this.maxDate, this.labelBuilder})`
+### `AntDateRangePicker({super.key, this.value, this.defaultValue, this.onChange, this.allowClear = false, this.placeholderStart, this.placeholderEnd, this.separator, this.disabled = false, this.size = AntDatePickerSize.middle, this.format, this.locale, this.weekStartsOnMonday = false, this.showToday = true, this.showTime = false, this.timeFormat, this.autofocus = false, this.status = AntInputStatus.normal, this.disabledDate, this.minDate, this.maxDate, this.labelBuilder})`
 
 创建日期范围选择框。
 
@@ -36,6 +36,8 @@ class AntDateRangePicker
 | `showTime` | `bool` | = false | — |
 | `timeFormat` | `String?` | 可选 | — |
 | `autofocus` | `bool` | = false | — |
+| `status` | `AntInputStatus` | = AntInputStatus.normal | — |
+| `disabledDate` | `bool Function(DateTime date)?` | 可选 | — |
 | `minDate` | `DateTime?` | 可选 | — |
 | `maxDate` | `DateTime?` | 可选 | — |
 | `labelBuilder` | `AntDateRangeLabelBuilder?` | 可选 | — |
@@ -48,6 +50,7 @@ class AntDateRangePicker
 | `autofocus` | `bool` | 是否自动聚焦 |
 | `defaultValue` | `AntDateRange?` | 非受控初始范围值 |
 | `disabled` | `bool` | 是否禁用 |
+| `disabledDate` | `bool Function(DateTime date)?` | 日期是否不可选 |
 | `format` | `String?` | 日期显示格式 |
 | `labelBuilder` | `AntDateRangeLabelBuilder?` | 触发器自定义渲染 |
 | `locale` | `AntPickerLocale?` | 国际化文案 |
@@ -60,6 +63,7 @@ class AntDateRangePicker
 | `showTime` | `bool` | 是否选择时间（相当于 antd showTime） |
 | `showToday` | `bool` | 面板是否显示「今天」快捷按钮 |
 | `size` | `AntDatePickerSize` | 尺寸 |
+| `status` | `AntInputStatus` | 校验状态（error / warning 时边框与光环跟随主题校验色） |
 | `timeFormat` | `String?` | 时间显示格式 |
 | `value` | `AntDateRange?` | 受控范围值 |
 | `weekStartsOnMonday` | `bool` | 周起始是否为周一（默认周日） |

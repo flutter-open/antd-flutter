@@ -1,6 +1,6 @@
 name: antd_form
 description: Ant Design Form for Flutter - typed form fields, validation rules, layout helpers, controllers and submit handling aligned with antd v6.
-version: 1.0.1
+version: 1.0.2
 homepage: https://flutter-open.github.io/antd-flutter/
 repository: https://github.com/flutter-open/antd-flutter
 issue_tracker: https://github.com/flutter-open/antd-flutter/issues
@@ -21,7 +21,7 @@ dependencies:
     sdk: flutter
   antd_theme: ^1.0.1
   # Form 的 builder 由业务侧组合 Input/Checkbox 等 ui 数据录入组件
-  antd_flutter_ui: ^1.0.1
+  antd_flutter_ui: ^1.0.6
   material_ui: ^1.11.0
 dev_dependencies:
   flutter_test:

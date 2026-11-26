@@ -12,6 +12,7 @@
 - **每个字段可独立选择校验时机。** `AntFormValidateTrigger.onChange` 在输入时校验，`onSubmit` 仅在提交时校验。
 - **通过 builder 绑定。** `AntFormItem<T>` 向 builder 传入 `AntFormField<T>`（`value`、`errorText`、`didChange`），因此包不关心你使用哪种控件，也无需额外维护 `TextEditingController` 生命周期。
 - **布局属于表单。** `vertical`、`horizontal`（配合 `labelWidth`）和 `inline` 是表单级配置，字段从 `AntForm` 作用域读取。
+- **间距与提示色可配。** `AntForm.itemMarginBottom` / `AntFormItem.marginBottom` 覆盖默认 16px 底部间距（带 `help` / `extra` 的字段默认不再额外留白），`hintColor`（表单级与字段级）覆盖提示文案颜色（默认 `colorTextDescription`），`labelColor` 覆盖标签颜色。
 - **不内置提交按钮。** 表单不渲染操作区；提交与重置的位置由你决定，可调用 `AntForm.controllerOf(context)?.submit()` 或使用自己的控制器引用。
 
 ## 安装
@@ -118,6 +119,29 @@ class FormDemoPage extends StatelessWidget {
 [API reference](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_form/docs/api-index.md)
 
 通过 `import 'package:antd_form/antd_form.dart';` 引入表单组件。以下片段使用上面列出的包提供的 `AntInput`、`AntTheme` 与 Material 组件。
+
+### 调整字段间距与提示色
+
+```dart
+AntForm(
+  itemMarginBottom: 24,        // 表单级：每个字段距下一行 24
+  hintColor: Colors.grey,      // 表单级：help / extra 文案颜色
+  children: [
+    AntFormItem<String>(
+      name: 'address',
+      label: '法人身份证地址',
+      hintColor: Colors.blueGrey, // 字段级优先
+      marginBottom: 4,            // 字段级优先
+      builder: (field) => AntInput(
+        value: field.value as String?,
+        onChange: field.didChange,
+      ),
+    ),
+  ],
+);
+```
+
+未配置时，字段底部间距取主题的 `margin`（16）；一旦字段出现 `help` / `error` / `extra` 文案，默认间距归零，由文案自身的行高充当间隔 —— 与 antd `.ant-form-item-with-help` 一致。
 
 ### 带自定义校验器的字段
 
