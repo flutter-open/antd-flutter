@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.7
+
+- Input (disabled): the disabled fill is now painted once by the control surface instead of twice. The `InputDecorator` used to fill an inset rectangle on top of the container's `colorBgContainerDisabled`, which read as a grey box with a darker inner band; the decorator now keeps `filled: true` (it still supplies the 4dp input gap) but with a transparent fill color.
+- `AntInputTextArea`: body text now starts at the same left inset as a single-line `AntInput`. The multiline path added the theme `marginSM` on top of the container's own horizontal padding, so the text sat one `marginSM` further right than single-line text.
+- `AntInputField.contentPadding` is now honored; it was declared but ignored, so callers passing a custom padding (such as `AntInputTextArea`) were silently overridden.
+
 ## 1.0.6
 
 - `AntSelect` gains `status`: the trigger border and focus ring follow the validation state (`colorError` / `colorWarning`, with `colorErrorOutline` / `colorWarningOutline` rings), matching `AntInput`.

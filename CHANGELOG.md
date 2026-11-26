@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.5
+
+- Bump `antd_flutter_ui` to `^1.0.7`: disabled inputs paint a single fill instead of a double one, and `AntInputTextArea` body text aligns with single-line inputs.
+
 ## 1.0.4
 
 - Bump `antd_flutter_ui` to `^1.0.6`: `AntSelect` gains `status` and `maxTagCount` (tags beyond the limit collapse into `+N`).

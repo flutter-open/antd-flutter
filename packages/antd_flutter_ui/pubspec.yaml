@@ -1,6 +1,6 @@
 name: antd_flutter_ui
 description: Ant Design v6 Flutter UI component library (base layer). Shared engines and basic/generic components, ported from antd and antd-mobile.
-version: 1.0.6
+version: 1.0.7
 homepage: https://flutter-open.github.io/antd-flutter/
 repository: https://github.com/flutter-open/antd-flutter
 issue_tracker: https://github.com/flutter-open/antd-flutter/issues

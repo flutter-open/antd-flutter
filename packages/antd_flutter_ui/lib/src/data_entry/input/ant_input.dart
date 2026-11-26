@@ -360,8 +360,11 @@ class _AntInputState extends State<AntInput> {
         GestureDetector(
           onTap: _clear,
           behavior: HitTestBehavior.opaque,
-          child:
-              Icon(AntIcons.closeCircleFilled, size: iconSize, color: t.colorTextQuaternary),
+          child: Icon(
+            AntIcons.closeCircleFilled,
+            size: iconSize,
+            color: t.colorTextQuaternary,
+          ),
         ),
       if (widget.suffix != null) widget.suffix!,
     ];
@@ -613,11 +616,9 @@ class _AntInputTextAreaState extends State<AntInputTextArea> {
       minLines: minLines,
       maxLines: maxLines,
       autofocus: widget.autofocus,
-      // 左右内边距统一基座单点（marginSM），与单行形态一致
-      contentPadding: EdgeInsets.symmetric(
-        horizontal: t.marginSM,
-        vertical: t.s(8),
-      ),
+      // 左右内边距由基座容器的 marginSM 统一承担（与单行形态一致），
+      // 这里只覆盖垂直内边距，避免正文再缩进一个 marginSM
+      contentPadding: EdgeInsets.symmetric(vertical: t.s(8)),
       onChanged: (_) => widget.onChange?.call(_controller.text),
       onSubmitted:
           widget.onPressEnter == null ? null : (_) => widget.onPressEnter!(),
@@ -898,7 +899,11 @@ class _AntInputSearchState extends State<AntInputSearch> {
                       color: Colors.white,
                     ),
                   )
-                : Icon(AntIcons.searchOutlined, size: iconSize, color: Colors.white),
+                : Icon(
+                    AntIcons.searchOutlined,
+                    size: iconSize,
+                    color: Colors.white,
+                  ),
       ),
     );
 

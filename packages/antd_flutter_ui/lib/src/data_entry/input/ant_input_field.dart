@@ -268,9 +268,16 @@ class _AntInputFieldState extends State<AntInputField> {
         // isCollapsed 移除：其把输入区压成行盒并顶置（文字偏上），
         // 由下方对称 contentPadding + textAlignVertical.center 实现居中
         // 基座统一：填充与 hover 全显式接管，全局主题不再渗入
+        // 带边框的 standalone 由外层容器整块绘制底色（含禁用灰底）：装饰器
+        // 若再 fill 一次，会得到一块内缩的矩形与容器灰底叠成「双底」。
+        // filled 保持 true：它同时带来 4dp 的水平输入间隙（字形内缩基准），
+        // 只把填充色置空即不参与着色。
         filled: standalone,
-        fillColor:
-            widget.enabled ? t.colorBgContainer : t.colorBgContainerDisabled,
+        fillColor: standalone && widget.bordered
+            ? Colors.transparent
+            : widget.enabled
+                ? t.colorBgContainer
+                : t.colorBgContainerDisabled,
         hoverColor: Colors.transparent,
         focusColor: Colors.transparent,
         counterText: '',
@@ -280,23 +287,28 @@ class _AntInputFieldState extends State<AntInputField> {
           height: 1.0,
           color: t.colorTextPlaceholder,
         ),
-        contentPadding: multiline
-            ? EdgeInsets.symmetric(
-                horizontal: t.marginSM, vertical: t.marginSM,)
-            // standalone 单行：上下对称内边距撑满高度锁定块
-            // （textAlignVertical.center 需对称余量执行居中；isCollapsed
-            // 会把输入区压成行盒并顶置——桌面/移动端均出现文字偏上）
-            : standalone
+        contentPadding: widget.contentPadding ??
+            (multiline
+                // 多行：左右内边距由外层容器承担（standalone 带边框时容器已有
+                // marginSM），装饰器再加一次会让正文比单行缩进一个 marginSM
                 ? EdgeInsets.symmetric(
-                    vertical: (t.s(height) - fontSize) / 2,
+                    horizontal: standalone && widget.bordered ? 0 : t.marginSM,
+                    vertical: t.marginSM,
                   )
-                // embedded：与 standalone 同一套对称内边距，行盒在整块内垂直
-                // 居中；外层可用 embeddedPadding 覆盖（AutoComplete 等自绘边框
-                // 场景高度小于标准控件高时传更小的值）
-                : EdgeInsets.symmetric(
-                    vertical: widget.embeddedPadding ??
-                        (t.s(height) - fontSize) / 2,
-                  ),
+                // standalone 单行：上下对称内边距撑满高度锁定块
+                // （textAlignVertical.center 需对称余量执行居中；isCollapsed
+                // 会把输入区压成行盒并顶置——桌面/移动端均出现文字偏上）
+                : standalone
+                    ? EdgeInsets.symmetric(
+                        vertical: (t.s(height) - fontSize) / 2,
+                      )
+                    // embedded：与 standalone 同一套对称内边距，行盒在整块内垂直
+                    // 居中；外层可用 embeddedPadding 覆盖（AutoComplete 等自绘边框
+                    // 场景高度小于标准控件高时传更小的值）
+                    : EdgeInsets.symmetric(
+                        vertical: widget.embeddedPadding ??
+                            (t.s(height) - fontSize) / 2,
+                      )),
         border: InputBorder.none,
         enabledBorder: InputBorder.none,
         focusedBorder: InputBorder.none,
@@ -310,7 +322,8 @@ class _AntInputFieldState extends State<AntInputField> {
                 child: widget.prefix!,
               )
             : null,
-        prefixIconConstraints: BoxConstraints(minHeight: t.s(height), minWidth: 0),
+        prefixIconConstraints:
+            BoxConstraints(minHeight: t.s(height), minWidth: 0),
         suffixIcon: widget.suffix != null
             ? _FieldSlot(
                 height: height,
@@ -318,7 +331,8 @@ class _AntInputFieldState extends State<AntInputField> {
                 child: widget.suffix!,
               )
             : null,
-        suffixIconConstraints: BoxConstraints(minHeight: t.s(height), minWidth: 0),
+        suffixIconConstraints:
+            BoxConstraints(minHeight: t.s(height), minWidth: 0),
       ),
       onChanged: widget.onChanged,
       onFieldSubmitted: widget.onSubmitted,
@@ -420,9 +434,8 @@ class _AntInputFieldState extends State<AntInputField> {
       color: enabled ? t.colorBgContainer : t.colorBgContainerDisabled,
       borderRadius: radius,
       border: Border.all(color: baseColor, width: t.s(1)),
-      boxShadow: _focused && enabled
-          ? antFieldFocusRingOf(t, widget.status)
-          : null,
+      boxShadow:
+          _focused && enabled ? antFieldFocusRingOf(t, widget.status) : null,
     );
   }
 }

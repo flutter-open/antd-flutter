@@ -143,7 +143,17 @@ void main() {
       await tester.pump();
       final decorator =
           tester.widget<InputDecorator>(find.byType(InputDecorator));
-      expect(decorator.decoration.fillColor, t.colorBgContainerDisabled);
+      // 禁用灰底由外层容器整块绘制；装饰器保持 filled=true（带来 4dp 输入
+      // 间隙）但填充色置空，避免叠出内缩的「双底」。
+      expect(decorator.decoration.fillColor, Colors.transparent);
+      final surface = tester.widget<AnimatedContainer>(
+        find.descendant(
+          of: find.byType(AntInput),
+          matching: find.byType(AnimatedContainer),
+        ),
+      );
+      expect((surface.decoration! as BoxDecoration).color,
+          t.colorBgContainerDisabled);
       final editable = tester.widget<EditableText>(
         find.descendant(
           of: find.byType(AntInput),
